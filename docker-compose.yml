@@ -1,0 +1,13 @@
+services:
+  api-gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=${{ shared.PORT }}
+      - KAFKA_BOOTSTRAP_SERVERS=${{ shared.KAFKA_BOOTSTRAP_SERVERS }}
+      - JWT_SECRET=${{ shared.JWT_SECRET }}
+      - ALLOWED_ORIGINS=${{ shared.ALLOWED_ORIGINS }}
+    restart: always
