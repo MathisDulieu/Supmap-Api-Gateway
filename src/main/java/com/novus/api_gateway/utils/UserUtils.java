@@ -20,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.Base64;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
@@ -219,4 +220,15 @@ public class UserUtils {
             errors.add("error");
         }
     }
+
+    public String validateGetAllUsersRequest(String keyword, int page) {
+        if (page < 0) return "error";
+        if (keyword.contains(" ")) return "error";
+        return null;
+    }
+
+    public int getTotalPages(long totalUsers, int pageSize) {
+        return (int) Math.ceil((double) totalUsers / pageSize);
+    }
+
 }

@@ -89,11 +89,10 @@ public class UserController {
     public ResponseEntity<GetAllUsersResponse> getAllUsers(
             @RequestParam(name = "keyword", required = false, defaultValue = "") String keyword,
             @RequestParam(name = "page", defaultValue = "0") int page,
-            @RequestParam(name = "filter", defaultValue = "none") String filter,
             @AuthenticationPrincipal User authenticatedUser,
             HttpServletRequest httpRequest
     ) {
-        return userService.getAllUsers(keyword, page, filter, authenticatedUser, httpRequest);
+        return userService.getAllUsers(keyword, page, authenticatedUser, httpRequest);
     }
 
     @GetMapping("/private/admin/user/dashboard-data")

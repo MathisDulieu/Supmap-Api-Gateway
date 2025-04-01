@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -31,4 +32,7 @@ public class UserDaoUtils {
         return userDao.isEmailAlreadyUsed(email);
     }
 
+    public List<User> searchUsersByUsernamePrefix(String keyword, int page) {
+        return userDao.searchUsersByUsernamePrefix(keyword, page, User.class);
+    }
 }

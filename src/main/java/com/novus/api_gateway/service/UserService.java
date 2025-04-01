@@ -1,25 +1,24 @@
 package com.novus.api_gateway.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.novus.api_gateway.Producer;
-import com.novus.api_gateway.dao.LocationDaoUtils;
+import com.novus.api_gateway.dao.AdminDashboardDaoUtils;
 import com.novus.api_gateway.dao.UserDaoUtils;
 import com.novus.api_gateway.utils.UserUtils;
+import com.novus.shared_models.common.AdminDashboard.AdminDashboard;
 import com.novus.shared_models.common.Kafka.KafkaMessage;
-import com.novus.shared_models.common.Location.Location;
 import com.novus.shared_models.common.User.User;
-import com.novus.shared_models.common.User.UserStats;
+import com.novus.shared_models.common.User.UserRole;
 import com.novus.shared_models.request.User.CreateAdminAccountRequest;
 import com.novus.shared_models.request.User.RateApplicationRequest;
 import com.novus.shared_models.request.User.UpdateAuthenticatedUserDetailsRequest;
 import com.novus.shared_models.request.User.UpdateUserLocationRequest;
-import com.novus.shared_models.response.User.*;
+import com.novus.shared_models.response.User.GetAllUsersResponse;
+import com.novus.shared_models.response.User.GetAuthenticatedUserDetailsResponse;
+import com.novus.shared_models.response.User.GetUserAdminDashboardDataResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -28,7 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static java.util.Collections.singletonMap;
 import static java.util.Objects.isNull;
 
 @Service
@@ -37,6 +35,8 @@ public class UserService {
 
     private final Producer producer;
     private final UserUtils userUtils;
+    private final UserDaoUtils userDaoUtils;
+    private final AdminDashboardDaoUtils adminDashboardDaoUtils;
 
     public ResponseEntity<GetAuthenticatedUserDetailsResponse> getAuthenticatedUserDetails(User authenticatedUser, HttpServletRequest httpRequest) {
         GetAuthenticatedUserDetailsResponse response = userUtils.buildGetAuthenticatedUserDetailsResponse(authenticatedUser);
@@ -125,23 +125,91 @@ public class UserService {
     }
 
     public ResponseEntity<String> deleteAdminAccount(String id, User authenticatedUser, HttpServletRequest httpRequest) {
-        return null;
+        Optional<User> optionalUser = userDaoUtils.findById(id);
+        if (optionalUser.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("error");
+        }
+
+        if (!optionalUser.get().getRole().equals(UserRole.ADMIN)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("error");
+        }
+
+        Map<String, String> kafkaRequest = Map.of(
+                "userId", optionalUser.get().getId()
+        );
+
+        KafkaMessage kafkaMessage = producer.buildKafkaMessage(authenticatedUser, httpRequest, kafkaRequest);
+
+        producer.send(kafkaMessage, "user-service", "deleteAdminAccount");
+
+        return ResponseEntity.status(HttpStatus.OK).body("message");
     }
 
-    public ResponseEntity<GetAllUsersResponse> getAllUsers(String keyword, int page, String filter, User authenticatedUser, HttpServletRequest httpRequest) {
-        return null;
+    public ResponseEntity<GetAllUsersResponse> getAllUsers(String keyword, int page, User authenticatedUser, HttpServletRequest httpRequest) {
+        GetAllUsersResponse response = GetAllUsersResponse.builder().build();
+
+        String error = userUtils.validateGetAllUsersRequest(keyword, page);
+        if (!isNull(error)) {
+            response.setError(error);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+
+        List<User> users = userDaoUtils.searchUsersByUsernamePrefix(keyword, page);
+        int totalPages = userUtils.getTotalPages(users.size(), 10);
+
+        response.setUsers(users);
+        response.setTotalPages(totalPages);
+
+        KafkaMessage kafkaMessage = producer.buildKafkaMessage(authenticatedUser, httpRequest, null);
+
+        producer.send(kafkaMessage, "user-service", "getAllUsers");
+
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     public ResponseEntity<GetUserAdminDashboardDataResponse> getUserAdminDashboardData(User authenticatedUser, HttpServletRequest httpRequest) {
-        return null;
+        GetUserAdminDashboardDataResponse response = GetUserAdminDashboardDataResponse.builder().build();
+
+        Optional<AdminDashboard> optionalAdminDashboard = adminDashboardDaoUtils.find();
+        if (optionalAdminDashboard.isEmpty()) {
+            response.setError("error");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
+
+        response.setUserActivityMetrics(optionalAdminDashboard.get().getUserActivityMetrics());
+        response.setUserGrowthStats(optionalAdminDashboard.get().getUserGrowthStats());
+        response.setTopContributors(optionalAdminDashboard.get().getTopContributors());
+        response.setAppRatingByNumberOfRate(optionalAdminDashboard.get().getAppRatingByNumberOfRate());
+
+        KafkaMessage kafkaMessage = producer.buildKafkaMessage(authenticatedUser, httpRequest, null);
+
+        producer.send(kafkaMessage, "user-service", "getUserAdminDashboardData");
+
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     public ResponseEntity<String> rateApplication(RateApplicationRequest request, User authenticatedUser, HttpServletRequest httpRequest) {
-        return null;
+        Map<String, String> kafkaRequest = Map.of(
+                "rate", String.valueOf(request.getRate())
+        );
+
+        KafkaMessage kafkaMessage = producer.buildKafkaMessage(authenticatedUser, httpRequest, kafkaRequest);
+
+        producer.send(kafkaMessage, "user-service", "rateApplication");
+
+        return ResponseEntity.status(HttpStatus.OK).body("message");
     }
 
     public ResponseEntity<String> updateUserLocation(UpdateUserLocationRequest request, User authenticatedUser, HttpServletRequest httpRequest) {
-        return null;
+        Map<String, String> kafkaRequest = Map.of(
+                "location", String.valueOf(request.getLocation())
+        );
+
+        KafkaMessage kafkaMessage = producer.buildKafkaMessage(authenticatedUser, httpRequest, kafkaRequest);
+
+        producer.send(kafkaMessage, "user-service", "updateUserLocation");
+
+        return ResponseEntity.status(HttpStatus.OK).body("message");
     }
 
 }
