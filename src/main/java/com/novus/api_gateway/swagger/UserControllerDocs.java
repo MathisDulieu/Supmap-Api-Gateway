@@ -85,6 +85,8 @@ public class UserControllerDocs {
     public @interface CreateAdminAccountDoc {}
     public @interface DeleteAdminAccountDoc {}
     public @interface GetAllUsersDoc {}
-    public @interface GetAdminDashboardDataDoc {}
+    public @interface GetUserAdminDashboardDataDoc {}
+    public @interface RateApplicationDoc {}
+    public @interface UpdateUserLocationDoc {}
 
 }
