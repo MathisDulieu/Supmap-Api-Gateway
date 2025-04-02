@@ -1,19 +1,18 @@
-FROM eclipse-temurin:21-jdk as build
+FROM eclipse-temurin:21-jdk AS build
+
+RUN apt-get update && apt-get install -y maven && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
+COPY . .
 
 COPY settings.xml /root/.m2/settings.xml
 
-COPY . .
-RUN chmod +x ./mvnw
-
-RUN ./mvnw package -DskipTests
+RUN mvn clean package -DskipTests
 
 FROM eclipse-temurin:21-jre
-
+WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
 
-RUN useradd runtime
-USER runtime
+EXPOSE 8080
 
-ENTRYPOINT ["java", "-Dserver.port=8080", "-jar", "app.jar"]
+CMD ["java", "-jar", "app.jar"]

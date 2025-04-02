@@ -17,13 +17,7 @@
 	<repositories>
 		<repository>
 			<id>nexus</id>
-			<url>http://nexus3.railway.internal/repository/maven-public/</url>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
+			<url>https://nexus3-production.up.railway.app/repository/maven-releases/</url>
 		</repository>
 	</repositories>
 
