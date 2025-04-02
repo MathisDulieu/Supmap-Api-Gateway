@@ -1,9 +1,7 @@
 package com.novus.api_gateway.dao;
 
 import com.novus.database_utils.Location.LocationDao;
-import com.novus.database_utils.User.UserDao;
 import com.novus.shared_models.common.Location.Location;
-import com.novus.shared_models.common.User.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Component;

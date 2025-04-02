@@ -1,9 +1,7 @@
 package com.novus.api_gateway.dao;
 
 import com.novus.database_utils.AdminDashboard.AdminDashboardDao;
-import com.novus.database_utils.User.UserDao;
 import com.novus.shared_models.common.AdminDashboard.AdminDashboard;
-import com.novus.shared_models.common.User.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Component;

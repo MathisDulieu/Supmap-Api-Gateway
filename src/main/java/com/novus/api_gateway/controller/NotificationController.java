@@ -4,6 +4,7 @@ import com.novus.api_gateway.service.NotificationService;
 import com.novus.api_gateway.swagger.NotificationControllerDoc;
 import com.novus.shared_models.common.User.User;
 import com.novus.shared_models.request.Notification.UpdateAuthenticatedUserNotificationPreferencesRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -23,9 +24,10 @@ public class NotificationController {
     @NotificationControllerDoc.UpdateAuthenticatedUserDetailsDoc
     public ResponseEntity<String> updateAuthenticatedUserNotificationPreferences(
             @RequestBody UpdateAuthenticatedUserNotificationPreferencesRequest request,
-            @AuthenticationPrincipal User authenticatedUser
+            @AuthenticationPrincipal User authenticatedUser,
+            HttpServletRequest httpRequest
     ) {
-        return notificationService.updateAuthenticatedUserNotificationPreferences(request, authenticatedUser);
+        return notificationService.updateAuthenticatedUserNotificationPreferences(request, authenticatedUser, httpRequest);
     }
 
 }

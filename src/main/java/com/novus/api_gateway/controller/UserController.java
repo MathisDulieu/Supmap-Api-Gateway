@@ -11,7 +11,6 @@ import com.novus.shared_models.request.User.UpdateUserLocationRequest;
 import com.novus.shared_models.response.User.GetAllUsersResponse;
 import com.novus.shared_models.response.User.GetAuthenticatedUserDetailsResponse;
 import com.novus.shared_models.response.User.GetUserAdminDashboardDataResponse;
-import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

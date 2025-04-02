@@ -1,13 +1,10 @@
 package com.novus.api_gateway.utils;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.novus.api_gateway.dao.LocationDaoUtils;
 import com.novus.api_gateway.dao.UserDaoUtils;
 import com.novus.shared_models.common.User.User;
 import com.novus.shared_models.common.User.UserStats;
 import com.novus.shared_models.request.Authentication.RegisterRequest;
-import com.novus.shared_models.request.User.CreateAdminAccountRequest;
 import com.novus.shared_models.request.User.UpdateAuthenticatedUserDetailsRequest;
 import com.novus.shared_models.response.User.GetAuthenticatedUserDetailsResponse;
 import com.novus.shared_models.response.User.UserDetailsLocationResponse;
@@ -20,7 +17,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.Base64;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
