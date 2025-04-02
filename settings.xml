@@ -9,5 +9,11 @@
             <username>admin</username>
             <password>fc1b5e25-4f25-479d-9d0d-9cfafb2b175a</password>
         </server>
+        <server>
+            <id>nexus-snapshots</id>
+            <username>admin</username>
+            <password>fc1b5e25-4f25-479d-9d0d-9cfafb2b175a</password>
+        </server>
     </servers>
+    <interactiveMode>false</interactiveMode>
 </settings>
