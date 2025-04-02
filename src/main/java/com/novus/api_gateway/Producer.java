@@ -10,6 +10,7 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -24,6 +25,7 @@ public class Producer {
     private final KafkaProducer<String, String> kafkaProducer;
     private final ObjectMapper objectMapper;
 
+    @Async("kafkaTaskExecutor")
     public void send(KafkaMessage kafkaMessage, String topic, String key) {
         try {
             String json = objectMapper.writeValueAsString(kafkaMessage);
@@ -34,11 +36,15 @@ public class Producer {
                     json
             );
 
-            kafkaProducer.send(record);
-            logger.info("Message sent to topic: {}, with key: {}", topic, key);
+            kafkaProducer.send(record, (metadata, exception) -> {
+                if (exception == null) {
+                    logger.info("Message sent asynchronously to topic: {}, with key: {}", topic, key);
+                } else {
+                    logger.error("Error while sending message asynchronously: {}", exception.getMessage());
+                }
+            });
         } catch (Exception exception) {
-            logger.error("Error while sending message: {}", exception.getMessage());
-            throw new RuntimeException(exception);
+            logger.error("Error while preparing message: {}", exception.getMessage());
         }
     }
 
