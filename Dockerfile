@@ -7,7 +7,12 @@ COPY settings.xml /app/settings.xml
 
 RUN chmod +x ./mvnw
 
-RUN ./mvnw clean package -U -DskipTests -s /app/settings.xml
+ARG NEXUS_USERNAME
+ARG NEXUS_PASSWORD
+
+RUN ./mvnw clean package -U -DskipTests -s /app/settings.xml \
+    -Dnexus.username=${NEXUS_USERNAME} \
+    -Dnexus.password=${NEXUS_PASSWORD}
 
 FROM eclipse-temurin:21-jre
 

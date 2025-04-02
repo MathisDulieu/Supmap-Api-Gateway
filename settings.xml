@@ -3,13 +3,13 @@
     <servers>
         <server>
             <id>nexus-releases</id>
-            <username>${env.NEXUS_USERNAME}</username>
-            <password>${env.NEXUS_PASSWORD}</password>
+            <username>${nexus.username}</username>
+            <password>${nexus.password}</password>
         </server>
         <server>
             <id>nexus-snapshots</id>
-            <username>${env.NEXUS_USERNAME}</username>
-            <password>${env.NEXUS_PASSWORD}</password>
+            <username>${nexus.username}</username>
+            <password>${nexus.password}</password>
         </server>
     </servers>
 </settings>
