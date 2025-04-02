@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.time.Instant;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,12 +13,13 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class LoggingService {
 
+
     private final ElasticsearchClient elasticsearchClient;
 
     public void logApiRequest(String serviceName, String endpoint, String method, int statusCode, long responseTime) {
         try {
             Map<String, Object> document = new HashMap<>();
-            document.put("timestamp", Instant.now());
+            document.put("timestamp", new Date());
             document.put("service", serviceName);
             document.put("endpoint", endpoint);
             document.put("method", method);

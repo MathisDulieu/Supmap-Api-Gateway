@@ -12,7 +12,6 @@ import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
-import java.time.Instant;
 import java.util.Date;
 
 import static io.jsonwebtoken.lang.Strings.hasText;
@@ -32,13 +31,13 @@ public class JwtTokenService {
     }
 
     public String generateToken(String userId) {
-        Instant now = Instant.now();
-        Date expiryDate = Date.from(now.plusSeconds(TOKEN_EXPIRATION_TIME));
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + TOKEN_EXPIRATION_TIME);
 
         return Jwts.builder()
                 .setSubject(userId)
                 .claim("type", "access")
-                .setIssuedAt(Date.from(now))
+                .setIssuedAt(now)
                 .setExpiration(expiryDate)
                 .signWith(getSigningKey(), SignatureAlgorithm.HS512)
                 .compact();
