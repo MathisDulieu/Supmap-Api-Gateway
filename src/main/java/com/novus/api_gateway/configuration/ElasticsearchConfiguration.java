@@ -15,6 +15,9 @@ import org.elasticsearch.client.RestClientBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+
 @Configuration
 @RequiredArgsConstructor
 public class ElasticsearchConfiguration {
@@ -26,34 +29,38 @@ public class ElasticsearchConfiguration {
 
     @Bean
     public ElasticsearchClient elasticsearchClient() {
-        String[] urlParts = envConfiguration.getElasticsearchUrl().split(":");
-        String host = urlParts[0].replace("http://", "").replace("https://", "");
-        int port = urlParts.length > 1 ? Integer.parseInt(urlParts[1]) : 9200;
-        String scheme = envConfiguration.getElasticsearchUrl().startsWith("https") ? "https" : "http";
+        try {
+            URI uri = new URI(envConfiguration.getElasticsearchUrl());
+            String host = uri.getHost();
+            int port = uri.getPort() != -1 ? uri.getPort() : (uri.getScheme().equals("https") ? 443 : 80);
+            String scheme = uri.getScheme();
 
-        final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
-        credentialsProvider.setCredentials(
-                AuthScope.ANY,
-                new UsernamePasswordCredentials(envConfiguration.getElasticsearchUsername(), envConfiguration.getElasticsearchPassword())
-        );
+            final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+            credentialsProvider.setCredentials(
+                    AuthScope.ANY,
+                    new UsernamePasswordCredentials(envConfiguration.getElasticsearchUsername(), envConfiguration.getElasticsearchPassword())
+            );
 
-        RestClientBuilder restClientBuilder = RestClient.builder(
-                        new HttpHost(host, port, scheme))
-                .setHttpClientConfigCallback(httpClientBuilder ->
-                        httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider))
-                .setRequestConfigCallback(requestConfigBuilder ->
-                        requestConfigBuilder
-                                .setConnectTimeout(CONNECT_TIMEOUT)
-                                .setSocketTimeout(SOCKET_TIMEOUT));
+            RestClientBuilder restClientBuilder = RestClient.builder(
+                            new HttpHost(host, port, scheme))
+                    .setHttpClientConfigCallback(httpClientBuilder ->
+                            httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider))
+                    .setRequestConfigCallback(requestConfigBuilder ->
+                            requestConfigBuilder
+                                    .setConnectTimeout(CONNECT_TIMEOUT)
+                                    .setSocketTimeout(SOCKET_TIMEOUT));
 
-        RestClient restClient = restClientBuilder.build();
+            RestClient restClient = restClientBuilder.build();
 
-        ElasticsearchTransport transport = new RestClientTransport(
-                restClient,
-                new JacksonJsonpMapper()
-        );
+            ElasticsearchTransport transport = new RestClientTransport(
+                    restClient,
+                    new JacksonJsonpMapper()
+            );
 
-        return new ElasticsearchClient(transport);
+            return new ElasticsearchClient(transport);
+        } catch (URISyntaxException e) {
+            throw new RuntimeException("Invalid Elasticsearch URL", e);
+        }
     }
 
 }
