@@ -36,4 +36,8 @@ public class UserDaoUtils {
     public List<User> searchUsersByUsernamePrefix(String keyword, int page) {
         return userDao.searchUsersByUsernamePrefix(keyword, page, User.class);
     }
+
+    public void save(User user) {
+        userDao.save(user);
+    }
 }
