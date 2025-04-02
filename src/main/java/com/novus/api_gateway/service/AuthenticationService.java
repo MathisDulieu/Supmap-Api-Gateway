@@ -1,6 +1,7 @@
 package com.novus.api_gateway.service;
 
 import com.novus.api_gateway.Producer;
+import com.novus.api_gateway.dao.UserDaoUtils;
 import com.novus.api_gateway.utils.UserUtils;
 import com.novus.shared_models.common.Kafka.KafkaMessage;
 import com.novus.shared_models.common.User.User;
@@ -24,6 +25,7 @@ import static java.util.Objects.isNull;
 public class AuthenticationService {
 
     private final Producer producer;
+    private final UserDaoUtils userDaoUtils;
     private final UserUtils userUtils;
     private final JwtTokenService jwtTokenService;
     private final PasswordEncoder passwordEncoder;
@@ -47,7 +49,7 @@ public class AuthenticationService {
     }
 
     public ResponseEntity<String> login(LoginRequest request, HttpServletRequest httpRequest) {
-        Optional<User> optionalUser = userUtils.findByEmail(request.getEmail());
+        Optional<User> optionalUser = userDaoUtils.findByEmail(request.getEmail());
         if (optionalUser.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("error");
         }
@@ -77,7 +79,7 @@ public class AuthenticationService {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("error");
         }
 
-        Optional<User> optionalUser = userUtils.findById(jwtTokenService.resolveUserIdFromToken(token));
+        Optional<User> optionalUser = userDaoUtils.findById(jwtTokenService.resolveUserIdFromToken(token));
         if (optionalUser.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("error");
         }
@@ -99,7 +101,7 @@ public class AuthenticationService {
     }
 
     public ResponseEntity<String> resendRegisterConfirmationEmail(ResendRegisterConfirmationEmailRequest request, HttpServletRequest httpRequest) {
-        Optional<User> optionalUser = userUtils.findByEmail(request.getEmail());
+        Optional<User> optionalUser = userDaoUtils.findByEmail(request.getEmail());
         if (optionalUser.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("error");
         }
@@ -121,7 +123,7 @@ public class AuthenticationService {
     }
 
     public ResponseEntity<String> sendForgotPasswordEmail(SendForgotPasswordRequest request, HttpServletRequest httpRequest) {
-        Optional<User> optionalUser = userUtils.findByEmail(request.getEmail());
+        Optional<User> optionalUser = userDaoUtils.findByEmail(request.getEmail());
         if (optionalUser.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("error");
         }
@@ -152,7 +154,7 @@ public class AuthenticationService {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("error");
         }
 
-        Optional<User> optionalUser = userUtils.findById(userId);
+        Optional<User> optionalUser = userDaoUtils.findById(userId);
         if (optionalUser.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("error");
         }
@@ -180,7 +182,7 @@ public class AuthenticationService {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("error");
         }
 
-        Optional<User> optionalUser = userUtils.findByEmail(email);
+        Optional<User> optionalUser = userDaoUtils.findByEmail(email);
         if (optionalUser.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("error");
         }

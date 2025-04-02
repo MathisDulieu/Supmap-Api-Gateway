@@ -1,18 +1,21 @@
-FROM eclipse-temurin:21-jdk AS build
-
-RUN apt-get update && apt-get install -y maven && rm -rf /var/lib/apt/lists/*
+FROM eclipse-temurin:21-jdk as build
 
 WORKDIR /app
+
 COPY . .
-
-COPY settings.xml /root/.m2/settings.xml
-
-RUN mvn clean package -DskipTests
+RUN chmod +x ./mvnw
+RUN ./mvnw package -DskipTests
 
 FROM eclipse-temurin:21-jre
-WORKDIR /app
+
+ARG PORT=8080
+ENV PORT=${PORT}
+
 COPY --from=build /app/target/*.jar app.jar
+COPY nginx.conf /etc/nginx/nginx.conf
 
-EXPOSE 8080
+RUN apt-get update && apt-get install -y nginx
+RUN useradd runtime
+USER runtime
 
-CMD ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-Dserver.port=${PORT}", "-jar", "app.jar"]

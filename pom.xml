@@ -16,7 +16,7 @@
 
 	<repositories>
 		<repository>
-			<id>nexus</id>
+			<id>nexus-releases</id>
 			<url>https://nexus3-production.up.railway.app/repository/maven-releases/</url>
 		</repository>
 	</repositories>
