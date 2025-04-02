@@ -13,7 +13,7 @@ COPY settings.xml /root/.m2/settings.xml
 COPY . .
 RUN chmod +x ./mvnw
 
-RUN ./mvnw package -DskipTests
+RUN ./mvnw package -DskipTests -s /root/.m2/settings.xml
 
 FROM eclipse-temurin:21-jre
 
