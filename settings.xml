@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
-          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
-          http://maven.apache.org/xsd/settings-1.0.0.xsd">
+<settings>
     <servers>
         <server>
             <id>nexus-releases</id>
@@ -15,5 +12,4 @@
             <password>fc1b5e25-4f25-479d-9d0d-9cfafb2b175a</password>
         </server>
     </servers>
-    <interactiveMode>false</interactiveMode>
 </settings>

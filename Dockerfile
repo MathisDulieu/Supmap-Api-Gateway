@@ -4,7 +4,13 @@ WORKDIR /app
 
 COPY . .
 RUN chmod +x ./mvnw
-RUN ./mvnw package -DskipTests
+
+RUN curl -u $NEXUS_USERNAME:$NEXUS_PASSWORD -I https://nexus3-production.up.railway.app/repository/maven-releases/
+
+RUN ./mvnw dependency:purge-local-repository
+RUN ./mvnw clean package -U -DskipTests
+
+RUN ./mvnw package -DskipTests -X
 
 FROM eclipse-temurin:21-jre
 
