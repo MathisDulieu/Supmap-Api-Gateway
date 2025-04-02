@@ -2,7 +2,6 @@ package com.novus.api_gateway.dao;
 
 import com.novus.database_utils.User.UserDao;
 import com.novus.shared_models.common.User.User;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Component;
 
@@ -10,11 +9,13 @@ import java.util.List;
 import java.util.Optional;
 
 @Component
-@RequiredArgsConstructor
 public class UserDaoUtils {
 
-    private final MongoTemplate mongoTemplate;
-    private final UserDao<User> userDao = new UserDao<>(mongoTemplate);
+    private final UserDao<User> userDao;
+
+    public UserDaoUtils(MongoTemplate mongoTemplate) {
+        this.userDao = new UserDao<>(mongoTemplate);
+    }
 
     public Optional<User> findByEmail(String email) {
         return userDao.findByEmail(email, User.class);
