@@ -12,9 +12,7 @@ ARG PORT=8080
 ENV PORT=${PORT}
 
 COPY --from=build /app/target/*.jar app.jar
-COPY nginx.conf /etc/nginx/nginx.conf
 
-RUN apt-get update && apt-get install -y nginx
 RUN useradd runtime
 USER runtime
 
