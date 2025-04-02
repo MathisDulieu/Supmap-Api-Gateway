@@ -3,9 +3,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      args:
-        - NEXUS_USERNAME=${{ shared.NEXUS_USERNAME }}
-        - NEXUS_PASSWORD=${{ shared.NEXUS_PASSWORD }}
     ports:
       - "8080:8080"
     environment:
