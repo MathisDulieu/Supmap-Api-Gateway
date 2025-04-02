@@ -5,7 +5,7 @@ WORKDIR /app
 COPY . .
 RUN chmod +x ./mvnw
 
-RUN curl -u $NEXUS_USERNAME:$NEXUS_PASSWORD -I https://nexus3-production.up.railway.app/repository/maven-releases/
+RUN curl -u admin:fc1b5e25-4f25-479d-9d0d-9cfafb2b175a -I https://nexus3-production.up.railway.app/repository/maven-releases/
 
 RUN ./mvnw dependency:purge-local-repository
 RUN ./mvnw clean package -U -DskipTests
