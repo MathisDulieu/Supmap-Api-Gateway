@@ -1,5 +1,11 @@
 FROM eclipse-temurin:21-jdk as build
 
+ARG NEXUS_USERNAME
+ARG NEXUS_PASSWORD
+
+ENV NEXUS_USERNAME=${NEXUS_USERNAME}
+ENV NEXUS_PASSWORD=${NEXUS_PASSWORD}
+
 WORKDIR /app
 
 COPY settings.xml /root/.m2/settings.xml

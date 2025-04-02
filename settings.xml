@@ -3,18 +3,18 @@
     <servers>
         <server>
             <id>nexus</id>
-            <username>admin</username>
-            <password>fc1b5e25-4f25-479d-9d0d-9cfafb2b175a</password>
+            <username>${env.NEXUS_USERNAME}</username>
+            <password>${env.NEXUS_PASSWORD}</password>
         </server>
         <server>
             <id>nexus-releases</id>
-            <username>admin</username>
-            <password>fc1b5e25-4f25-479d-9d0d-9cfafb2b175a</password>
+            <username>${env.NEXUS_USERNAME}</username>
+            <password>${env.NEXUS_PASSWORD}</password>
         </server>
         <server>
             <id>nexus-snapshots</id>
-            <username>admin</username>
-            <password>fc1b5e25-4f25-479d-9d0d-9cfafb2b175a</password>
+            <username>${env.NEXUS_USERNAME}</username>
+            <password>${env.NEXUS_PASSWORD}</password>
         </server>
     </servers>
 </settings>

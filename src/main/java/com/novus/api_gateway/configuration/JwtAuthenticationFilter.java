@@ -1,7 +1,7 @@
 package com.novus.api_gateway.configuration;
 
+import com.novus.api_gateway.dao.UserDaoUtils;
 import com.novus.api_gateway.service.JwtTokenService;
-import com.novus.api_gateway.utils.UserUtils;
 import com.novus.shared_models.common.User.User;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -27,7 +27,7 @@ import java.util.Optional;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtTokenService jwtTokenService;
-    private final UserUtils userUtils;
+    private final UserDaoUtils userDaoUtils;
 
     @Override
     protected void doFilterInternal(@NotNull HttpServletRequest request,
@@ -54,7 +54,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return null;
         }
 
-        Optional<User> optionalUser = userUtils.findById(userId);
+        Optional<User> optionalUser = userDaoUtils.findById(userId);
 
         return optionalUser.map(this::buildAuthentication).orElse(null);
     }
