@@ -40,4 +40,8 @@ public class UserDaoUtils {
     public void save(User user) {
         userDao.save(user);
     }
+
+    public List<User> findNearByUsers(Double latitude, Double longitude) {
+        return userDao.findNearByUsers(latitude, longitude, User.class);
+    }
 }

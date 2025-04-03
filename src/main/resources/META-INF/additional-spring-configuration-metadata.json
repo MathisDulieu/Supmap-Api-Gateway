@@ -3,42 +3,47 @@
     {
       "name": "supmap.properties.allowed-origins",
       "type": "java.lang.String",
-      "description": "Description for supmap.properties.allowed-origins."
+      "description": "List of origins allowed to make cross-origin requests to the API. Multiple origins should be comma-separated."
     },
     {
       "name": "supmap.properties.database-name",
       "type": "java.lang.String",
-      "description": "Description for supmap.properties.database-name."
+      "description": "Name of the MongoDB database used by the application for storing data."
     },
     {
       "name": "supmap.properties.elasticsearch-password",
       "type": "java.lang.String",
-      "description": "Description for supmap.properties.elasticsearch-password."
+      "description": "Password credential for authenticating with the Elasticsearch service."
     },
     {
       "name": "supmap.properties.elasticsearch-url",
       "type": "java.lang.String",
-      "description": "Description for supmap.properties.elasticsearch-url."
+      "description": "URL endpoint for connecting to the Elasticsearch service for search functionality."
     },
     {
       "name": "supmap.properties.elasticsearch-username",
       "type": "java.lang.String",
-      "description": "Description for supmap.properties.elasticsearch-username."
+      "description": "Username credential for authenticating with the Elasticsearch service."
     },
     {
       "name": "supmap.properties.jwt-secret",
       "type": "java.lang.String",
-      "description": "Description for supmap.properties.jwt-secret."
+      "description": "Secret key used for signing and verifying JWT tokens for user authentication."
     },
     {
       "name": "supmap.properties.kafka-bootstrap-servers",
       "type": "java.lang.String",
-      "description": "Description for supmap.properties.kafka-bootstrap-servers."
+      "description": "List of host:port pairs for establishing the initial connection to the Kafka cluster."
     },
     {
       "name": "supmap.properties.mongo-uri",
       "type": "java.lang.String",
-      "description": "Description for supmap.properties.mongo-uri."
+      "description": "Connection string URI for connecting to the MongoDB database server."
+    },
+    {
+      "name": "supmap.properties.frontend-base-url",
+      "type": "java.lang.String",
+      "description": "Base URL of the frontend application, used for generating links in emails and callbacks."
     }
   ]
 }

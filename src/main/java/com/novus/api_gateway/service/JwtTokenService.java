@@ -57,16 +57,16 @@ public class JwtTokenService {
     }
 
     public boolean isPasswordResetTokenValid(String token) {
-        return isTokenValid(token, "password_reset");
+        return isTokenValid(token);
     }
 
-    private boolean isTokenValid(String token, String tokenType) {
+    private boolean isTokenValid(String token) {
         Claims claims = parseTokenClaims(token);
         if (isNull(claims)) {
             return false;
         }
 
-        if (!tokenType.equals(claims.get("type"))) {
+        if (!"password_reset".equals(claims.get("type"))) {
             return false;
         }
 

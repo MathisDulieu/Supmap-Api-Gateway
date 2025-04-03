@@ -1,5 +1,6 @@
 package com.novus.api_gateway.controller;
 
+import com.novus.api_gateway.prometheus.ContactMetrics;
 import com.novus.api_gateway.service.ContactService;
 import com.novus.api_gateway.swagger.ContactControllerDoc;
 import com.novus.shared_models.common.User.User;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class ContactController {
 
     private final ContactService contactService;
+    private final ContactMetrics metrics;
 
     @PostMapping("/contact/send-support-email")
     @ContactControllerDoc.SendSupportEmailDoc
@@ -27,7 +29,19 @@ public class ContactController {
             @RequestBody SendSupportEmailRequest request,
             HttpServletRequest httpRequest
     ) {
-        return contactService.sendSupportEmail(request, httpRequest);
+        ResponseEntity<String> response = metrics.recordTimedOperation(
+                metrics.getSupportEmailTimer(),
+                "send_support_email",
+                () -> contactService.sendSupportEmail(request, httpRequest)
+        );
+
+        if (response.getStatusCode().is2xxSuccessful() && request != null && request.getSubject() != null) {
+            metrics.recordSupportEmail(request.getSubject());
+        } else {
+            metrics.recordSupportEmail("unknown");
+        }
+
+        return response;
     }
 
     @PostMapping("/contact/subscribe-newsletter")
@@ -36,7 +50,17 @@ public class ContactController {
             @RequestBody SubscribeToNewsletterRequest request,
             HttpServletRequest httpRequest
     ) {
-        return contactService.subscribeToNewsletter(request, httpRequest);
+        ResponseEntity<String> response = metrics.recordTimedOperation(
+                metrics.getSubscribeNewsletterTimer(),
+                "subscribe_newsletter",
+                () -> contactService.subscribeToNewsletter(request, httpRequest)
+        );
+
+        if (response.getStatusCode().is2xxSuccessful()) {
+            metrics.recordNewsletterSubscription();
+        }
+
+        return response;
     }
 
     @PostMapping("/contact/unsubscribe-newsletter")
@@ -45,17 +69,36 @@ public class ContactController {
             @RequestBody UnsubscribeFromNewsletterRequest request,
             HttpServletRequest httpRequest
     ) {
-        return contactService.unsubscribeFromNewsletter(request, httpRequest);
+        ResponseEntity<String> response = metrics.recordTimedOperation(
+                metrics.getUnsubscribeNewsletterTimer(),
+                "unsubscribe_newsletter",
+                () -> contactService.unsubscribeFromNewsletter(request, httpRequest)
+        );
+
+        if (response.getStatusCode().is2xxSuccessful()) {
+            metrics.recordNewsletterUnsubscription();
+        }
+
+        return response;
     }
 
-    @PostMapping("/private/admin/send-newsletter")
+    @PostMapping("/private/admin/contact/send-newsletter")
     @ContactControllerDoc.SendNewsletterDoc
     public ResponseEntity<String> sendNewsletter(
             @RequestBody SendNewsletterRequest request,
             @AuthenticationPrincipal User authenticatedUser,
             HttpServletRequest httpRequest
     ) {
-        return contactService.sendNewsletter(request, authenticatedUser, httpRequest);
-    }
+        ResponseEntity<String> response = metrics.recordTimedOperation(
+                metrics.getSendNewsletterTimer(),
+                "send_newsletter",
+                () -> contactService.sendNewsletter(request, authenticatedUser, httpRequest)
+        );
 
+        if (response.getStatusCode().is2xxSuccessful() && request != null && request.getSubject() != null) {
+            metrics.recordNewsletterSent(1);
+        }
+
+        return response;
+    }
 }

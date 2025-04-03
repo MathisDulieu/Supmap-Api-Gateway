@@ -28,7 +28,8 @@ public class NotificationService {
 
         producer.send(kafkaMessage, "notification-service", "updateAuthenticatedUserNotificationPreferences");
 
-        return ResponseEntity.status(HttpStatus.OK).body("message");
+        return ResponseEntity.status(HttpStatus.OK).body("Notification preferences successfully updated. You will " +
+                "now receive notifications according to your selected settings.");
     }
 
 }

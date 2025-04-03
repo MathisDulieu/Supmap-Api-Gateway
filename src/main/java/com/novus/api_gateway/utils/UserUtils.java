@@ -36,19 +36,19 @@ public class UserUtils {
 
     public String getRegisterValidationError(RegisterRequest request) {
         if (isInvalidEmail(request.getEmail())) {
-            return "error";
+            return "Invalid email format. Please enter a valid email address.";
         }
         if (isInvalidUsername(request.getUsername())) {
-            return "error";
+            return "Invalid username. Username must be between 3-20 characters and contain only letters, numbers, and underscores.";
         }
         if (isInvalidPassword(request.getPassword())) {
-            return "error";
+            return "Password does not meet security requirements. Please use at least 8 characters including uppercase, lowercase, numbers, and special characters.";
         }
         if (userDaoUtils.isUsernameAlreadyUsed(request.getUsername())) {
-            return "error";
+            return "Username already exists. Please choose a different username.";
         }
         if (userDaoUtils.isEmailAlreadyUsed(request.getEmail())) {
-            return "error";
+            return "Email address is already registered. Please use a different email or try to recover your account.";
         }
 
         return null;
@@ -85,22 +85,22 @@ public class UserUtils {
 
     public void validateUpdateAuthenticatedUserDetailsRequest(List<String> errors, UpdateAuthenticatedUserDetailsRequest request) {
         if (isNull(request.getEmail()) && isNull(request.getUsername()) && isNull(request.getNewPassword())) {
-            errors.add("error");
+            errors.add("At least one field (email, username, or password) must be provided to update your profile. Please specify what you want to change.");
         }
     }
 
     public void validateNewUsername(List<String> errors, String username, User userToUpdate) {
         if (!isNull(username)) {
             if (isInvalidUsername(username)) {
-                errors.add("error");
+                errors.add("Invalid username format. Username must be between 3-20 characters and contain only letters, numbers, and underscores.");
             }
 
             if (userDaoUtils.isUsernameAlreadyUsed(username)) {
-                errors.add("error");
+                errors.add("This username is already taken. Please choose a different username.");
             }
 
             if (username.equals(userToUpdate.getUsername())) {
-                errors.add("error");
+                errors.add("The new username is the same as your current username. Please enter a different username to make a change.");
             }
 
             userToUpdate.setUsername(username);
@@ -110,15 +110,15 @@ public class UserUtils {
     public void validateNewEmail(List<String> errors, String email, User userToUpdate) {
         if (!isNull(email)) {
             if (isInvalidEmail(email)) {
-                errors.add("error");
+                errors.add("Invalid email format. Please enter a valid email address.");
             }
 
             if (userDaoUtils.isEmailAlreadyUsed(email)) {
-                errors.add("error");
+                errors.add("This email address is already registered with another account. Please use a different email address.");
             }
 
             if (email.equals(userToUpdate.getEmail())) {
-                errors.add("error");
+                errors.add("The new email is the same as your current email. Please enter a different email address to make a change.");
             }
 
             userToUpdate.setValidEmail(false);
@@ -129,15 +129,16 @@ public class UserUtils {
     public void validateNewPassword(List<String> errors, String oldPassword, String newPassword, User userToUpdate) {
         if (!isNull(oldPassword) || !isNull(newPassword)) {
             if (isInvalidPassword(newPassword)) {
-                errors.add("error");
+                errors.add("Password does not meet security requirements. Please use at least 8 characters including" +
+                        " uppercase, lowercase, numbers, and special characters.");
             }
 
             if (passwordEncoder.matches(newPassword, userToUpdate.getPassword())) {
-                errors.add("New password must be different from the old password.");
+                errors.add("The new password cannot be the same as your current password. Please choose a different password.");
             }
 
             if (!passwordEncoder.matches(oldPassword, userToUpdate.getPassword())) {
-                errors.add("Old password is incorrect.");
+                errors.add("Incorrect current password. Please enter your current password correctly to verify your identity.");
             }
 
             userToUpdate.setPassword(passwordEncoder.encode(newPassword));
@@ -193,33 +194,33 @@ public class UserUtils {
 
     public void validateUsername(List<String> errors, String username) {
         if (isInvalidUsername(username)) {
-            errors.add("error");
+            errors.add("Invalid username format. Username must be between 3-20 characters and contain only letters, numbers, and underscores.");
         }
 
         if (userDaoUtils.isUsernameAlreadyUsed(username)) {
-            errors.add("error");
+            errors.add("This username is already taken. Please choose a different username.");
         }
     }
 
     public void validateEmail(List<String> errors, String email) {
         if (isInvalidEmail(email)) {
-            errors.add("error");
+            errors.add("Invalid email format. Please enter a valid email address.");
         }
 
         if (userDaoUtils.isEmailAlreadyUsed(email)) {
-            errors.add("error");
+            errors.add("This email address is already registered. Please use a different email address.");
         }
     }
 
     public void validatePassword(List<String> errors, String password) {
         if (isInvalidPassword(password)) {
-            errors.add("error");
+            errors.add("Password does not meet security requirements. Please use at least 8 characters including uppercase, lowercase, numbers, and special characters.");
         }
     }
 
     public String validateGetAllUsersRequest(String keyword, int page) {
-        if (page < 0) return "error";
-        if (keyword.contains(" ")) return "error";
+        if (page < 0) return "Invalid page number. Page number must be zero or a positive integer.";
+        if (keyword.contains(" ")) return "Search keyword cannot contain spaces. Please use a single word or connected words.";
         return null;
     }
 

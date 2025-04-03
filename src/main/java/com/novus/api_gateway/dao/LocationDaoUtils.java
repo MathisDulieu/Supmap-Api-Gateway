@@ -5,6 +5,7 @@ import com.novus.shared_models.common.Location.Location;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -20,4 +21,7 @@ public class LocationDaoUtils {
         return locationDao.findById(id, Location.class);
     }
 
+    public List<Location> findByIds(List<String> favoriteLocationIds) {
+        return locationDao.findByIds(favoriteLocationIds, Location.class);
+    }
 }

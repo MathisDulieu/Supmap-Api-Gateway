@@ -53,17 +53,19 @@ public class UserService {
 
         producer.send(kafkaMessage, "user-service", "deleteAuthenticatedUserAccount");
 
-        return ResponseEntity.status(HttpStatus.OK).body("message");
+        return ResponseEntity.status(HttpStatus.OK).body("Your account has been successfully deleted. All personal " +
+                "data has been removed from our system. We're sorry to see you go!");
     }
 
     public ResponseEntity<String> setUserProfileImage(MultipartFile file, User authenticatedUser, HttpServletRequest httpRequest) {
         if (isNull(file)) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("error");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No image file provided. Please select an image to upload.");
         }
 
         String fileAsBase64 = userUtils.getFileAsBase64(file);
         if (isNull(fileAsBase64)) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to process the image. Please" +
+                    " try again with a different image or contact support if the issue persists.");
         }
 
         Map<String, String> kafkaRequest = Map.of(
@@ -74,7 +76,7 @@ public class UserService {
 
         producer.send(kafkaMessage, "user-service", "setUserProfileImage");
 
-        return ResponseEntity.status(HttpStatus.OK).body("message");
+        return ResponseEntity.status(HttpStatus.OK).body("Profile image successfully updated! Your new profile picture is now visible to other users.");
     }
 
     public ResponseEntity<String> updateAuthenticatedUserDetails(UpdateAuthenticatedUserDetailsRequest request, User authenticatedUser, HttpServletRequest httpRequest) {
@@ -95,7 +97,7 @@ public class UserService {
 
         producer.send(kafkaMessage, "user-service", "setUserProfileImage");
 
-        return ResponseEntity.status(HttpStatus.OK).body("message");
+        return ResponseEntity.status(HttpStatus.OK).body("Your profile information has been successfully updated. The changes are now visible in your account.");
     }
 
     public ResponseEntity<String> createAdminAccount(CreateAdminAccountRequest request, User authenticatedUser, HttpServletRequest httpRequest) {
@@ -121,17 +123,17 @@ public class UserService {
 
         producer.send(kafkaMessage, "user-service", "createAdminAccount");
 
-        return ResponseEntity.status(HttpStatus.OK).body("message");
+        return ResponseEntity.status(HttpStatus.OK).body("Admin account successfully created. The new administrator can now log in with the provided credentials.");
     }
 
     public ResponseEntity<String> deleteAdminAccount(String id, User authenticatedUser, HttpServletRequest httpRequest) {
         Optional<User> optionalUser = userDaoUtils.findById(id);
         if (optionalUser.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("error");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found. The specified admin account does not exist or has already been deleted.");
         }
 
         if (!optionalUser.get().getRole().equals(UserRole.ADMIN)) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("error");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("This operation can only be performed on admin accounts. The specified user is not an administrator.");
         }
 
         Map<String, String> kafkaRequest = Map.of(
@@ -142,7 +144,7 @@ public class UserService {
 
         producer.send(kafkaMessage, "user-service", "deleteAdminAccount");
 
-        return ResponseEntity.status(HttpStatus.OK).body("message");
+        return ResponseEntity.status(HttpStatus.OK).body("Admin account successfully deleted. The user will no longer have administrator privileges.");
     }
 
     public ResponseEntity<GetAllUsersResponse> getAllUsers(String keyword, int page, User authenticatedUser, HttpServletRequest httpRequest) {
@@ -172,7 +174,7 @@ public class UserService {
 
         Optional<AdminDashboard> optionalAdminDashboard = adminDashboardDaoUtils.find();
         if (optionalAdminDashboard.isEmpty()) {
-            response.setError("error");
+            response.setError("Dashboard data not found. The user administration statistics have not been generated yet.");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         }
 
@@ -197,7 +199,7 @@ public class UserService {
 
         producer.send(kafkaMessage, "user-service", "rateApplication");
 
-        return ResponseEntity.status(HttpStatus.OK).body("message");
+        return ResponseEntity.status(HttpStatus.OK).body("Thank you for rating our application! Your feedback helps us improve our service.");
     }
 
     public ResponseEntity<String> updateUserLocation(UpdateUserLocationRequest request, User authenticatedUser, HttpServletRequest httpRequest) {
@@ -209,7 +211,7 @@ public class UserService {
 
         producer.send(kafkaMessage, "user-service", "updateUserLocation");
 
-        return ResponseEntity.status(HttpStatus.OK).body("message");
+        return ResponseEntity.status(HttpStatus.OK).body("Your location has been successfully updated. This will help provide more accurate navigation and alerts.");
     }
 
 }

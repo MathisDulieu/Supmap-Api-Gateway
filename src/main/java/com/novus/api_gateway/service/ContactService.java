@@ -27,7 +27,7 @@ public class ContactService {
     public ResponseEntity<String> sendSupportEmail(SendSupportEmailRequest request, HttpServletRequest httpRequest) {
         if (isNull(request.getEmail()) || isEmpty(request.getEmail()) || isNull(request.getSubject()) || isEmpty(request.getSubject())
                 || isNull(request.getContent()) || isEmpty(request.getContent())) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("error");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Please fill in all required fields (email, subject, and content) to submit your support request.");
         }
 
         Map<String, String> kafkaRequest = Map.of(
@@ -40,7 +40,7 @@ public class ContactService {
 
         producer.send(kafkaMessage, "contact-service", "sendSupportEmail");
 
-        return ResponseEntity.status(HttpStatus.OK).body("message");
+        return ResponseEntity.status(HttpStatus.OK).body("Your support request has been successfully submitted. Our team will contact you shortly at the provided email address.");
     }
 
     public ResponseEntity<String> subscribeToNewsletter(SubscribeToNewsletterRequest request, HttpServletRequest httpRequest) {
@@ -52,7 +52,7 @@ public class ContactService {
 
         producer.send(kafkaMessage, "contact-service", "subscribeToNewsletter");
 
-        return ResponseEntity.status(HttpStatus.OK).body("message");
+        return ResponseEntity.status(HttpStatus.OK).body("Thank you for subscribing to our newsletter! You will now receive updates and news about our services.");
     }
 
     public ResponseEntity<String> unsubscribeFromNewsletter(UnsubscribeFromNewsletterRequest request, HttpServletRequest httpRequest) {
@@ -64,12 +64,12 @@ public class ContactService {
 
         producer.send(kafkaMessage, "contact-service", "unsubscribeFromNewsletter");
 
-        return ResponseEntity.status(HttpStatus.OK).body("message");
+        return ResponseEntity.status(HttpStatus.OK).body("You have successfully unsubscribed from our newsletter. You will no longer receive emails from us.");
     }
 
     public ResponseEntity<String> sendNewsletter(SendNewsletterRequest request, User authenticatedUser, HttpServletRequest httpRequest) {
         if (isNull(request.getSubject()) || isEmpty(request.getSubject()) || isNull(request.getContent()) || isEmpty(request.getContent())) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("error");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Both subject and content are required to send a newsletter. Please fill in all fields.");
         }
 
         Map<String, String> kafkaRequest = Map.of(
@@ -81,7 +81,7 @@ public class ContactService {
 
         producer.send(kafkaMessage, "contact-service", "sendNewsletter");
 
-        return ResponseEntity.status(HttpStatus.OK).body("message");
+        return ResponseEntity.status(HttpStatus.OK).body("Newsletter has been successfully queued for sending to all subscribers.");
     }
 
 }

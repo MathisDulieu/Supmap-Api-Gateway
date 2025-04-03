@@ -18,4 +18,5 @@ public class EnvConfiguration {
     private String jwtSecret;
     private String kafkaBootstrapServers;
     private String mongoUri;
+    private String frontendBaseUrl;
 }

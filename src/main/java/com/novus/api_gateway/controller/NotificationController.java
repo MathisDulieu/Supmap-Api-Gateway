@@ -1,5 +1,6 @@
 package com.novus.api_gateway.controller;
 
+import com.novus.api_gateway.prometheus.NotificationMetrics;
 import com.novus.api_gateway.service.NotificationService;
 import com.novus.api_gateway.swagger.NotificationControllerDoc;
 import com.novus.shared_models.common.User.User;
@@ -14,11 +15,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/private/notification")
+@RequestMapping("/private/notification/preferences")
 @RequiredArgsConstructor
 public class NotificationController {
 
     private final NotificationService notificationService;
+    private final NotificationMetrics metrics;
 
     @PutMapping
     @NotificationControllerDoc.UpdateAuthenticatedUserDetailsDoc
@@ -27,7 +29,17 @@ public class NotificationController {
             @AuthenticationPrincipal User authenticatedUser,
             HttpServletRequest httpRequest
     ) {
-        return notificationService.updateAuthenticatedUserNotificationPreferences(request, authenticatedUser, httpRequest);
-    }
+        ResponseEntity<String> response = metrics.recordTimedOperation(
+                metrics.getUpdatePreferencesTimer(),
+                "update_notification_preferences",
+                () -> notificationService.updateAuthenticatedUserNotificationPreferences(request, authenticatedUser, httpRequest)
+        );
 
+        if (response.getStatusCode().is2xxSuccessful() && request != null) {
+            metrics.recordPreferenceUpdate("email", request.isEmail());
+            metrics.updateNotificationEnabledUsers("email", request.isEmail());
+        }
+
+        return response;
+    }
 }
