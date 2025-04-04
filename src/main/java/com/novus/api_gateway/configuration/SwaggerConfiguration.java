@@ -28,6 +28,9 @@ public class SwaggerConfiguration {
                                 .url("https://www.apache.org/licenses/LICENSE-2.0.html"))
                         .version("1.0.0"))
                 .addServersItem(new io.swagger.v3.oas.models.servers.Server()
+                        .url("https://production-api-gateway.up.railway.app")
+                        .description("Production Server"))
+                .addServersItem(new io.swagger.v3.oas.models.servers.Server()
                         .url("http://localhost:8080")
                         .description("Local Server"))
                 .components(new io.swagger.v3.oas.models.Components()
@@ -50,7 +53,7 @@ public class SwaggerConfiguration {
             apiResponses.addApiResponse("429", new ApiResponse()
                     .description("Too Many Requests")
                     .content(new Content()
-                            .addMediaType("application/json", new MediaType().example(Collections.singletonMap("message", "Too many requests. Please try again later.")))));
+                            .addMediaType("application/json", new MediaType().example("Too many requests. Please try again later."))));
             operation.setResponses(apiResponses);
             return operation;
         };
