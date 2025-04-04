@@ -947,7 +947,7 @@ public class MapControllerDoc {
     @Operation(
             summary = "Delete a favorite location",
             description = "Removes a location from the authenticated user's favorites list by its unique identifier.",
-            tags = {"Map", "User", "Location"},
+            tags = {"Map"},
             security = @SecurityRequirement(name = "bearerAuth")
     )
     @Parameter(
