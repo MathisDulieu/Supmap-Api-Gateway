@@ -23,7 +23,7 @@ public class NotificationController {
     private final NotificationMetrics metrics;
 
     @PutMapping
-    @NotificationControllerDoc.UpdateAuthenticatedUserDetailsDoc
+    @NotificationControllerDoc.UpdateAuthenticatedUserNotificationPreferencesDoc
     public ResponseEntity<String> updateAuthenticatedUserNotificationPreferences(
             @RequestBody UpdateAuthenticatedUserNotificationPreferencesRequest request,
             @AuthenticationPrincipal User authenticatedUser,
