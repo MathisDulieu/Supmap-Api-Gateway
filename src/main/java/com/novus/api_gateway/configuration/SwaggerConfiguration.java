@@ -51,7 +51,7 @@ public class SwaggerConfiguration {
             apiResponses.addApiResponse("429", new ApiResponse()
                     .description("Too Many Requests")
                     .content(new Content()
-                            .addMediaType("application/json", new MediaType().example("Too many requests. Please try again later."))));
+                            .addMediaType("text/plain", new MediaType().example("Too many requests. Please try again later."))));
             operation.setResponses(apiResponses);
             return operation;
         };

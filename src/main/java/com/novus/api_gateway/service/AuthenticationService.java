@@ -38,8 +38,9 @@ public class AuthenticationService {
 
         Map<String, String> kafkaRequest = Map.of(
                 "username", request.getUsername(),
-                "email", request.getEmail()
-        );
+                "email", request.getEmail(),
+                "password", passwordEncoder.encode(request.getPassword())
+                );
 
         KafkaMessage kafkaMessage = producer.buildKafkaMessage(null, httpRequest, kafkaRequest);
 
