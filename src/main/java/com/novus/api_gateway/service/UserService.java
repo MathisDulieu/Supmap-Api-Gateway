@@ -17,8 +17,11 @@ import com.novus.shared_models.response.User.GetAuthenticatedUserDetailsResponse
 import com.novus.shared_models.response.User.GetUserAdminDashboardDataResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -29,7 +32,9 @@ import java.util.Optional;
 
 import static java.util.Objects.isNull;
 
+@Slf4j
 @Service
+@EnableScheduling
 @RequiredArgsConstructor
 public class UserService {
 
@@ -37,6 +42,12 @@ public class UserService {
     private final UserUtils userUtils;
     private final UserDaoUtils userDaoUtils;
     private final AdminDashboardDaoUtils adminDashboardDaoUtils;
+
+    @Scheduled(fixedRate = 120000)
+    public void RefreshUserActivity() {
+        log.info("🔄 Refreshing user activity status");
+        userDaoUtils.updateUserActivityStatus();
+    }
 
     public ResponseEntity<GetAuthenticatedUserDetailsResponse> getAuthenticatedUserDetails(User authenticatedUser, HttpServletRequest httpRequest) {
         GetAuthenticatedUserDetailsResponse response = userUtils.buildGetAuthenticatedUserDetailsResponse(authenticatedUser);

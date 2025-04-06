@@ -9,6 +9,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 import java.util.Date;
 import java.util.TimeZone;
@@ -16,6 +17,7 @@ import java.util.TimeZone;
 @Slf4j
 @SpringBootApplication(scanBasePackages = "com.novus.api_gateway")
 @EnableConfigurationProperties(EnvConfiguration.class)
+@EnableScheduling
 public class ApiGatewayApplication {
 
 	public static void main(String[] args) {

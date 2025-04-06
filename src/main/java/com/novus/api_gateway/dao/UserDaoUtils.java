@@ -44,4 +44,8 @@ public class UserDaoUtils {
     public List<User> findNearByUsers(Double latitude, Double longitude) {
         return userDao.findNearByUsers(latitude, longitude, User.class);
     }
+
+    public void updateUserActivityStatus() {
+        userDao.updateUserActivityStatus();
+    }
 }
