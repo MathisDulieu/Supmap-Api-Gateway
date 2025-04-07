@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
-//@Slf4j
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class Producer {
@@ -26,9 +26,10 @@ public class Producer {
         kafkaTemplate.send("authentication-service", message);
     }
 
-    @Async("kafkaTaskExecutor")
+//    @Async("kafkaTaskExecutor")
     public void send(KafkaMessage kafkaMessage, String topic, String key) {
         try {
+            log.info("Ok");
 //            String json = objectMapper.writeValueAsString(kafkaMessage);
 //
 //            CompletableFuture<SendResult<String, String>> future = kafkaTemplate.send(topic, key, json);

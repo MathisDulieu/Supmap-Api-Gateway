@@ -58,7 +58,7 @@ public class KafkaConfiguration {
 //    public KafkaTemplate<String, String> kafkaTemplate() {
 //        return new KafkaTemplate<>(producerFactory());
 //    }
-//
+
 //    @Bean
 //    public Executor kafkaTaskExecutor() {
 //        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
