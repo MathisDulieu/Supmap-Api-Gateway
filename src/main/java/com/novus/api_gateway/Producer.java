@@ -20,33 +20,28 @@ import java.util.concurrent.CompletableFuture;
 public class Producer {
 
     private final KafkaTemplate<String, String> kafkaTemplate;
-//    private final ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper;
 
-    public void sendMessage(String message) {
-        kafkaTemplate.send("authentication-service", message);
-    }
-
-//    @Async("kafkaTaskExecutor")
+    @Async("kafkaTaskExecutor")
     public void send(KafkaMessage kafkaMessage, String topic, String key) {
         try {
-            log.info("Ok");
-//            String json = objectMapper.writeValueAsString(kafkaMessage);
-//
-//            CompletableFuture<SendResult<String, String>> future = kafkaTemplate.send(topic, key, json);
-//
-//            future.whenComplete((result, exception) -> {
-//                if (exception == null) {
-//                    log.info("Message sent successfully to topic: {}, partition: {}, offset: {}, with key: {}",
-//                            result.getRecordMetadata().topic(),
-//                            result.getRecordMetadata().partition(),
-//                            result.getRecordMetadata().offset(),
-//                            key);
-//                } else {
-//                    log.error("Error while sending message asynchronously: {}", exception.getMessage(), exception);
-//                }
-//            });
+            String json = objectMapper.writeValueAsString(kafkaMessage);
+
+            CompletableFuture<SendResult<String, String>> future = kafkaTemplate.send(topic, key, json);
+
+            future.whenComplete((result, exception) -> {
+                if (exception == null) {
+                    log.info("Message sent successfully to topic: {}, partition: {}, offset: {}, with key: {}",
+                            result.getRecordMetadata().topic(),
+                            result.getRecordMetadata().partition(),
+                            result.getRecordMetadata().offset(),
+                            key);
+                } else {
+                    log.error("Error while sending message asynchronously: {}", exception.getMessage(), exception);
+                }
+            });
         } catch (Exception exception) {
-//            log.error("Error while preparing message: {}", exception.getMessage(), exception);
+            log.error("Error while preparing message: {}", exception.getMessage(), exception);
         }
     }
 
