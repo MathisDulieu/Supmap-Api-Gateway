@@ -80,8 +80,7 @@ public class KafkaController {
     }
 
     @GetMapping("/messages/{topic}")
-    public ResponseEntity<List<Map<String, Object>>> getTopicMessages(
-            @PathVariable String topic) {
+    public ResponseEntity<List<Map<String, Object>>> getTopicMessages(@PathVariable String topic) {
         List<Map<String, Object>> messages = new ArrayList<>();
 
         Properties props = new Properties();
@@ -93,21 +92,26 @@ public class KafkaController {
         props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 100);
 
         try (KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props)) {
+            // Approche 1: utiliser subscribe
             consumer.subscribe(Collections.singletonList(topic));
-
-            // Essayer de récupérer les messages avec un timeout
-            ConsumerRecords<String, String> records = consumer.poll(Duration.ofSeconds(10));
+            ConsumerRecords<String, String> records = consumer.poll(Duration.ofSeconds(5));
 
             if (records.isEmpty()) {
-                // Si aucun message n'est disponible avec l'approche subscribe, essayer avec assign
-                Set<TopicPartition> partitions = new java.util.HashSet<>();
-                for (org.apache.kafka.common.PartitionInfo partitionInfo : consumer.partitionsFor(topic)) {
+                // Si l'approche subscribe ne donne rien, essayer avec assign
+                consumer.unsubscribe(); // Important: d'abord se désabonner
+
+                // Ensuite assigner les partitions manuellement
+                List<TopicPartition> partitions = new ArrayList<>();
+                for (org.apache.kafka.common.PartitionInfo partitionInfo :
+                        consumer.partitionsFor(topic)) {
                     partitions.add(new TopicPartition(topic, partitionInfo.partition()));
                 }
 
-                consumer.assign(partitions);
-                consumer.seekToBeginning(partitions);
-                records = consumer.poll(Duration.ofSeconds(10));
+                if (!partitions.isEmpty()) {
+                    consumer.assign(partitions);
+                    consumer.seekToBeginning(partitions);
+                    records = consumer.poll(Duration.ofSeconds(5));
+                }
             }
 
             for (ConsumerRecord<String, String> record : records) {
