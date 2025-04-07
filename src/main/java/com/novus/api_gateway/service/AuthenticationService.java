@@ -46,8 +46,6 @@ public class AuthenticationService {
 
         producer.send(kafkaMessage, "authentication-service", "register");
 
-        userDaoUtils.save(User.builder().username(request.getUsername()).password(request.getPassword()).email(request.getEmail()).build());
-
         return ResponseEntity.status(HttpStatus.OK).body("Registration successful! A verification email has been sent" +
                 " to your address. Please check your inbox and follow the validation link before attempting to log in.");
     }
