@@ -35,11 +35,11 @@ public class LoggingInterceptor implements HandlerInterceptor {
     }
 
     private String determineService(String path) {
-        if (path.startsWith("/auth")) return "authentication-service";
-        if (path.startsWith("/user")) return "user-service";
-        if (path.startsWith("/notification")) return "notification-service";
-        if (path.startsWith("/map")) return "map-service";
-        if (path.startsWith("/contact")) return "contact-service";
+        if (path.contains("/auth")) return "authentication-service";
+        if (path.contains("/user")) return "user-service";
+        if (path.contains("/notification")) return "notification-service";
+        if (path.contains("/map")) return "map-service";
+        if (path.contains("/contact")) return "contact-service";
         return "api-gateway";
     }
 

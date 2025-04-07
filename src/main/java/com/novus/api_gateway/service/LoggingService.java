@@ -13,7 +13,6 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class LoggingService {
 
-
     private final ElasticsearchClient elasticsearchClient;
 
     public void logApiRequest(String serviceName, String endpoint, String method, int statusCode, long responseTime) {

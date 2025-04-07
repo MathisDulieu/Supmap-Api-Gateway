@@ -17,7 +17,6 @@ import java.util.TimeZone;
 @Slf4j
 @SpringBootApplication(scanBasePackages = "com.novus.api_gateway")
 @EnableConfigurationProperties(EnvConfiguration.class)
-@EnableScheduling
 public class ApiGatewayApplication {
 
 	public static void main(String[] args) {

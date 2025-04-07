@@ -39,7 +39,7 @@ public class UserUtils {
             return "Invalid email format. Please enter a valid email address.";
         }
         if (isInvalidUsername(request.getUsername())) {
-            return "Invalid username. Username must be between 3-20 characters and contain only letters, numbers, and underscores.";
+            return "Invalid username. Username must be between 3-12 characters and contain only letters, numbers, and underscores.";
         }
         if (isInvalidPassword(request.getPassword())) {
             return "Password does not meet security requirements. Please use at least 8 characters including uppercase, lowercase, numbers, and special characters.";
