@@ -3,17 +3,22 @@ package com.novus.api_gateway.configuration;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.RequiredArgsConstructor;
-import org.apache.kafka.clients.producer.KafkaProducer;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.kafka.core.DefaultKafkaProducerFactory;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
-import java.util.Properties;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Executor;
 
+@Slf4j
 @Configuration
 @EnableAsync
 @RequiredArgsConstructor
@@ -22,11 +27,14 @@ public class KafkaConfiguration {
     private final EnvConfiguration envConfiguration;
 
     @Bean
-    public KafkaProducer<String, String> kafkaProducer() {
-        Properties props = new Properties();
-        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, envConfiguration.getKafkaBootstrapServers());
-        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+    public ProducerFactory<String, String> producerFactory() {
+        String bootstrapServers = envConfiguration.getKafkaBootstrapServers();
+        log.info("Configuring Kafka producer with bootstrap servers: {}", bootstrapServers);
+
+        Map<String, Object> props = new HashMap<>();
+        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         props.put(ProducerConfig.ACKS_CONFIG, "all");
         props.put(ProducerConfig.RETRIES_CONFIG, 3);
         props.put(ProducerConfig.RETRY_BACKOFF_MS_CONFIG, 100);
@@ -35,7 +43,13 @@ public class KafkaConfiguration {
         props.put(ProducerConfig.BUFFER_MEMORY_CONFIG, 33554432);
         props.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, true);
         props.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, "snappy");
-        return new KafkaProducer<>(props);
+        props.put(ProducerConfig.CLIENT_ID_CONFIG, "api-gateway-producer");
+        return new DefaultKafkaProducerFactory<>(props);
+    }
+
+    @Bean
+    public KafkaTemplate<String, String> kafkaTemplate() {
+        return new KafkaTemplate<>(producerFactory());
     }
 
     @Bean
