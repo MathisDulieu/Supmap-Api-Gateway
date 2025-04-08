@@ -10,10 +10,9 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class KafkaProducer {
 
-    private KafkaTemplate<String, String> kafkaTemplate;
+    private final KafkaTemplate<String, String> kafkaTemplate;
 
     public void send(String data) {
         kafkaTemplate.send("authenticationTopic", data);
     }
-
 }
