@@ -18,11 +18,14 @@ import java.util.concurrent.CompletableFuture;
 @RequiredArgsConstructor
 public class Producer {
 
-    private final KafkaTemplate<String, Object> kafkaTemplate;
+    private final KafkaTemplate<String, String> kafkaTemplate;
+    private final ObjectMapper objectMapper;
 
     public void send(KafkaMessage kafkaMessage, String topic, String key) {
         try {
-            CompletableFuture<SendResult<String, Object>> future = kafkaTemplate.send(topic, key, kafkaMessage);
+            String messageJson = objectMapper.writeValueAsString(kafkaMessage);
+
+            CompletableFuture<SendResult<String, String>> future = kafkaTemplate.send(topic, key, messageJson);
 
             future.whenComplete((result, exception) -> {
                 if (exception == null) {
