@@ -12,10 +12,8 @@ import org.springframework.stereotype.Service;
 public class KafkaProducer {
 
     private final KafkaTemplate<String, String> kafkaTemplate;
-    private final KafkaTopicChecker kafkaTopicChecker;
 
-    public void send(String data) throws Exception {
+    public void send(String data) {
         kafkaTemplate.send("authenticationTopic", data);
-        kafkaTopicChecker.getTopicInfo("authenticationTopic");
     }
 }

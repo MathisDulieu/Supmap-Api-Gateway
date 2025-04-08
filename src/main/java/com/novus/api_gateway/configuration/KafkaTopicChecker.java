@@ -37,21 +37,4 @@ public class KafkaTopicChecker implements CommandLineRunner {
         }
     }
 
-    public void getTopicInfo(String topicName) throws Exception {
-        DescribeTopicsResult topicInfo = adminClient.describeTopics(Collections.singletonList(topicName));
-        Map<String, TopicDescription> descriptions = topicInfo.allTopicNames().get();
-
-        for (Map.Entry<String, TopicDescription> entry : descriptions.entrySet()) {
-            TopicDescription desc = entry.getValue();
-            System.out.println("Topic: " + desc.name());
-            System.out.println("Partitions: " + desc.partitions().size());
-            for (TopicPartitionInfo partition : desc.partitions()) {
-                System.out.println("  Partition: " + partition.partition());
-                System.out.println("  Leader: " + partition.leader().id());
-                System.out.println("  Replicas: " +
-                        partition.replicas().stream().map(Node::id).toList());
-            }
-        }
-    }
-
 }
