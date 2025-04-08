@@ -1,6 +1,5 @@
 package com.novus.api_gateway.service;
 
-import com.novus.api_gateway.KafkaProducerService;
 import com.novus.api_gateway.Producer;
 import com.novus.api_gateway.dao.UserDaoUtils;
 import com.novus.api_gateway.utils.UserUtils;
@@ -30,7 +29,6 @@ public class AuthenticationService {
     private final UserUtils userUtils;
     private final JwtTokenService jwtTokenService;
     private final PasswordEncoder passwordEncoder;
-    private final KafkaProducerService kafkaProducerService;
 
     public ResponseEntity<String> register(RegisterRequest request, HttpServletRequest httpRequest) {
         String error = userUtils.getRegisterValidationError(request);
@@ -46,9 +44,7 @@ public class AuthenticationService {
 
         KafkaMessage kafkaMessage = producer.buildKafkaMessage(null, httpRequest, kafkaRequest);
 
-//        producer.send(kafkaMessage, "authentication-service", "register");
-
-        kafkaProducerService.sendEvent("authentication-service", kafkaMessage);
+        producer.send(kafkaMessage, "authentication-service", "register");
 
         return ResponseEntity.status(HttpStatus.OK).body("Registration successful! A verification email has been sent" +
                 " to your address. Please check your inbox and follow the validation link before attempting to log in.");
