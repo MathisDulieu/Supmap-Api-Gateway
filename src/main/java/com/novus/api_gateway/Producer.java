@@ -1,18 +1,13 @@
 package com.novus.api_gateway;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.novus.shared_models.common.Kafka.KafkaMessage;
 import com.novus.shared_models.common.User.User;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.kafka.support.SendResult;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 
 @Slf4j
 @Service

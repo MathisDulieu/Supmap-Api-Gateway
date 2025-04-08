@@ -1,6 +1,5 @@
 package com.novus.api_gateway.service;
 
-import com.novus.api_gateway.KafkaMessageProducer;
 import com.novus.api_gateway.KafkaProducer;
 import com.novus.api_gateway.Producer;
 import com.novus.api_gateway.dao.UserDaoUtils;
