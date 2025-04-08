@@ -19,8 +19,8 @@ import java.util.concurrent.CompletableFuture;
 @RequiredArgsConstructor
 public class Producer {
 
-    private final KafkaTemplate<String, String> kafkaTemplate;
-    private final ObjectMapper objectMapper;
+//    private final KafkaTemplate<String, String> kafkaTemplate;
+//    private final ObjectMapper objectMapper;
 
 //    @Async("kafkaTaskExecutor")
     public void send(KafkaMessage kafkaMessage, String topic, String key) {
