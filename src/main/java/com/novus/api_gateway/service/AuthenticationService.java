@@ -48,7 +48,11 @@ public class AuthenticationService {
 
 //        producer.send(kafkaMessage, "authentication-service", "register");
 
-        kafkaProducer.send("message123");
+        try {
+            kafkaProducer.send("message123");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
 
         return ResponseEntity.status(HttpStatus.OK).body("Registration successful! A verification email has been sent" +
                 " to your address. Please check your inbox and follow the validation link before attempting to log in.");

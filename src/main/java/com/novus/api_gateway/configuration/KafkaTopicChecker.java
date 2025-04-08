@@ -12,7 +12,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 
 @Component
@@ -36,7 +35,6 @@ public class KafkaTopicChecker implements CommandLineRunner {
         for (String name : topicNames) {
             System.out.println(" - " + name);
         }
-        getTopicInfo("authenticationTopic");
     }
 
     public void getTopicInfo(String topicName) throws Exception {
