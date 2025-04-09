@@ -53,10 +53,8 @@ public class SecurityConfiguration {
                         .requestMatchers("/private/admin/**").hasAnyAuthority("SUPER_ADMIN", "ADMIN")
                         .requestMatchers("/protected/**").hasAuthority("SUPER_ADMIN")
                         .requestMatchers("/private/**").authenticated()
-//                        .requestMatchers("/oauth/google-login").authenticated()
                         .anyRequest().permitAll()
                 )
-//                .oauth2Login(withDefaults())
                 .headers(headers -> headers
                         .frameOptions(HeadersConfigurer.FrameOptionsConfig::deny)
                         .xssProtection(xss -> xss.headerValue(XXssProtectionHeaderWriter.HeaderValue.ENABLED_MODE_BLOCK))

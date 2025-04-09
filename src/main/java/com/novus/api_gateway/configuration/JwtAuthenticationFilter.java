@@ -65,7 +65,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private boolean isNotPrivateRoute(String uri) {
-        return !uri.startsWith("/api/private");
+        return !uri.startsWith("/private");
     }
 
 }
