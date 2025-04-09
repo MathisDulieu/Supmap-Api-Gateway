@@ -50,7 +50,7 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/private/admin/**").hasAnyAuthority("SUPER_ADMIN", "ADMIN")
                         .requestMatchers("/protected/**").hasAuthority("SUPER_ADMIN")
-                        .requestMatchers("/private/**").authenticated()
+                        .requestMatchers("/private/**").hasAnyAuthority("USER", "SUPER_ADMIN", "ADMIN")
                         .requestMatchers("/oauth/google-login").authenticated()
                         .anyRequest().permitAll()
                 )

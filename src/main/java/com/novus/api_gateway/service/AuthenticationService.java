@@ -114,7 +114,8 @@ public class AuthenticationService {
 
         Map<String, String> kafkaRequest = Map.of(
                 "userId", optionalUser.get().getId(),
-                "email", request.getEmail()
+                "email", request.getEmail(),
+                "username", optionalUser.get().getUsername()
         );
 
         KafkaMessage kafkaMessage = producer.buildKafkaMessage(null, httpRequest, kafkaRequest);
@@ -167,7 +168,8 @@ public class AuthenticationService {
         optionalUser.get().setPassword(request.getNewPassword());
 
         Map<String, String> kafkaRequest = Map.of(
-                "userId", optionalUser.get().getId()
+                "userId", optionalUser.get().getId(),
+                "newPassword", passwordEncoder.encode(request.getNewPassword())
         );
 
         KafkaMessage kafkaMessage = producer.buildKafkaMessage(null, httpRequest, kafkaRequest);
