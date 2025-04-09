@@ -46,33 +46,21 @@ public class SecurityConfiguration {
     }
 
     @Bean
-    @Order(1)
-    public SecurityFilterChain oauthFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .securityMatcher("/oauth/google-login")
-                .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/oauth/google-login").authenticated()
-                )
-                .oauth2Login(withDefaults());
-
-        return http.build();
-    }
-
-    @Bean
-    @Order(2)
-    public SecurityFilterChain apiFilterChain(HttpSecurity http) throws Exception {
-        http
-                .securityMatcher("/private/**", "/protected/**")
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/private/admin/**").hasAnyAuthority("SUPER_ADMIN", "ADMIN")
                         .requestMatchers("/protected/**").hasAuthority("SUPER_ADMIN")
-                        .requestMatchers("/private/**").hasAnyAuthority("USER", "SUPER_ADMIN", "ADMIN")
-                        .anyRequest().authenticated()
+                        .requestMatchers("/private/**").authenticated()
+//                        .requestMatchers("/oauth/google-login").authenticated()
+                        .anyRequest().permitAll()
                 )
-                .exceptionHandling(exceptions -> exceptions
-                        .authenticationEntryPoint(new Http403ForbiddenEntryPoint())
+//                .oauth2Login(withDefaults())
+                .headers(headers -> headers
+                        .frameOptions(HeadersConfigurer.FrameOptionsConfig::deny)
+                        .xssProtection(xss -> xss.headerValue(XXssProtectionHeaderWriter.HeaderValue.ENABLED_MODE_BLOCK))
+                        .contentSecurityPolicy(csp -> csp.policyDirectives("default-src 'self'"))
                 )
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
@@ -85,26 +73,8 @@ public class SecurityConfiguration {
     }
 
     @Bean
-    @Order(3)
-    public SecurityFilterChain defaultFilterChain(HttpSecurity http) throws Exception {
-        http
-                .securityMatcher("/**")
-                .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(auth -> auth
-                        .anyRequest().permitAll()
-                )
-                .headers(headers -> headers
-                        .frameOptions(HeadersConfigurer.FrameOptionsConfig::deny)
-                        .xssProtection(xss -> xss.headerValue(XXssProtectionHeaderWriter.HeaderValue.ENABLED_MODE_BLOCK))
-                        .contentSecurityPolicy(csp -> csp.policyDirectives("default-src 'self'"))
-                )
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()));
-
-        return http.build();
-    }
-
-    @Bean
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
 }
