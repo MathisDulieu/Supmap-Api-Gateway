@@ -45,16 +45,24 @@ public class SecurityConfiguration {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
+                .securityMatcher("/oauth/**")
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/oauth/google-login").authenticated()
-                        .requestMatchers("/private/admin/**").hasAnyAuthority("SUPER_ADMIN", "ADMIN")
-                        .requestMatchers("/protected/**").hasAuthority("SUPER_ADMIN")
-                        .requestMatchers("/private/**").hasAnyAuthority("USER", "SUPER_ADMIN", "ADMIN")
                         .anyRequest().permitAll()
                 )
                 .oauth2Login(oauth2 -> oauth2
                         .loginPage("/oauth/google-login")
                         .defaultSuccessUrl("/oauth/success", true)
+                );
+
+        http
+                .securityMatcher("/private/**", "/protected/**")
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/private/admin/**").hasAnyAuthority("SUPER_ADMIN", "ADMIN")
+                        .requestMatchers("/protected/**").hasAuthority("SUPER_ADMIN")
+                        .requestMatchers("/private/**").hasAnyAuthority("USER", "SUPER_ADMIN", "ADMIN")
+                        .anyRequest().authenticated()
                 )
                 .headers(headers -> headers
                         .frameOptions(HeadersConfigurer.FrameOptionsConfig::deny)
@@ -65,7 +73,14 @@ public class SecurityConfiguration {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .addFilterBefore(rateLimitingFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
+        http
+                .securityMatcher("/**")
+                .authorizeHttpRequests(auth -> auth
+                        .anyRequest().permitAll()
+                )
+                .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()));
 
         return http.build();
