@@ -19,6 +19,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import static org.springframework.security.config.Customizer.withDefaults;
+
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -47,14 +49,12 @@ public class SecurityConfiguration {
     @Order(1)
     public SecurityFilterChain oauthFilterChain(HttpSecurity http) throws Exception {
         http
-                .securityMatcher("/oauth/**")
+                .securityMatcher("/oauth/google-login")
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .anyRequest().authenticated()
+                        .requestMatchers("/oauth/google-login").authenticated()
                 )
-                .oauth2Login(oauth2 -> oauth2
-                        .defaultSuccessUrl("/oauth/success", true)
-                );
+                .oauth2Login(withDefaults());
 
         return http.build();
     }
