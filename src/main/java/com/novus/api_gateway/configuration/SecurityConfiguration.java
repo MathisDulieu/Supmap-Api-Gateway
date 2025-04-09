@@ -17,8 +17,6 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import static org.springframework.security.config.Customizer.withDefaults;
-
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -48,13 +46,16 @@ public class SecurityConfiguration {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/oauth/google-login").authenticated()
                         .requestMatchers("/private/admin/**").hasAnyAuthority("SUPER_ADMIN", "ADMIN")
                         .requestMatchers("/protected/**").hasAuthority("SUPER_ADMIN")
                         .requestMatchers("/private/**").hasAnyAuthority("USER", "SUPER_ADMIN", "ADMIN")
-                        .requestMatchers("/oauth/google-login").authenticated()
                         .anyRequest().permitAll()
                 )
-                .oauth2Login(withDefaults())
+                .oauth2Login(oauth2 -> oauth2
+                        .loginPage("/oauth/google-login")
+                        .defaultSuccessUrl("/oauth/success", true)
+                )
                 .headers(headers -> headers
                         .frameOptions(HeadersConfigurer.FrameOptionsConfig::deny)
                         .xssProtection(xss -> xss.headerValue(XXssProtectionHeaderWriter.HeaderValue.ENABLED_MODE_BLOCK))
@@ -74,5 +75,4 @@ public class SecurityConfiguration {
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-
 }
