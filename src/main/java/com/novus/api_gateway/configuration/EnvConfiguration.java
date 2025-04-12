@@ -5,6 +5,8 @@ import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
+import java.util.Map;
+
 @Getter
 @Setter
 @Component
@@ -19,4 +21,15 @@ public class EnvConfiguration {
     private String kafkaBootstrapServers;
     private String mongoUri;
     private String frontendBaseUrl;
+    private String cloudinaryApiKey;
+    private String cloudinaryCloudName;
+    private String cloudinaryApiSecret;
+    private String qrCodeApiUrl;
+    public Map<String, String> getCloudinaryConfig() {
+        return Map.of(
+                "cloud_name", cloudinaryCloudName,
+                "api_key", cloudinaryApiKey,
+                "api_secret", cloudinaryApiSecret
+        );
+    }
 }

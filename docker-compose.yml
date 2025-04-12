@@ -25,4 +25,8 @@ services:
       - GOOGLE_CLIENT_SECRET=${{ shared.GOOGLE_CLIENT_SECRET }}
       - GOOGLE_REDIRECT_URI=${{ shared.GOOGLE_REDIRECT_URI }}
       - FRONTEND_BASE_URL=${{ shared.FRONTEND_BASE_URL }}
+      - CLOUDINARY_API_KEY=${{ shared.CLOUDINARY_API_KEY }}
+      - CLOUDINARY_CLOUD_NAME=${{ shared.CLOUDINARY_CLOUD_NAME }}
+      - CLOUDINARY_API_SECRET=${{ shared.CLOUDINARY_API_SECRET }}
+      - QR_CODE_API_URL=${{ shared.QR_CODE_API_URL }}
     restart: always

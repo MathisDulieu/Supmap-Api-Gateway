@@ -1,5 +1,6 @@
 package com.novus.api_gateway.service;
 
+import com.novus.api_gateway.configuration.EnvConfiguration;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -11,13 +12,13 @@ import java.nio.charset.StandardCharsets;
 @RequiredArgsConstructor
 public class QRcodeService {
 
-    private static final String QR_CODE_API_URL = "https://api.qrserver.com/v1/create-qr-code/";
+    private final EnvConfiguration envConfiguration;
 
     public String buildQRCodeUrl(String data, int size) {
         try {
             String encodedData = URLEncoder.encode(data, StandardCharsets.UTF_8);
 
-            return UriComponentsBuilder.fromUriString(QR_CODE_API_URL)
+            return UriComponentsBuilder.fromUriString(envConfiguration.getQrCodeApiUrl())
                     .queryParam("data", encodedData)
                     .queryParam("size", size + "x" + size)
                     .queryParam("format", "png")

@@ -11,6 +11,7 @@ import com.novus.shared_models.common.AdminDashboard.AdminDashboard;
 import com.novus.shared_models.common.Alert.Alert;
 import com.novus.shared_models.common.Kafka.KafkaMessage;
 import com.novus.shared_models.common.Location.Location;
+import com.novus.shared_models.common.Location.LocationType;
 import com.novus.shared_models.common.User.User;
 import com.novus.shared_models.request.Map.*;
 import com.novus.shared_models.response.Map.*;
@@ -107,6 +108,11 @@ public class MapService {
     }
 
     public ResponseEntity<String> saveNewUserFavoriteLocation(SaveNewUserFavoriteLocationRequest request, User authenticatedUser, HttpServletRequest httpRequest) {
+        boolean isValidLocationType = mapUtils.isValidLocationType(request.getLocationType());
+        if (!isValidLocationType) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid location type. Accepted values are: HOME, WORK, FAVORITE, RECENT, and CUSTOM.");
+        }
+
         Map<String, String> kafkaRequest = Map.of(
                 "locationType", request.getLocationType(),
                 "city", request.getCity(),
@@ -115,7 +121,8 @@ public class MapService {
                 "street", request.getStreet(),
                 "formattedAddress", request.getFormattedAddress(),
                 "postalCode", request.getPostalCode(),
-                "coordinates", String.valueOf(request.getCoordinates())
+                "latitude", String.valueOf(request.getCoordinates().getLatitude()),
+                "longitude", String.valueOf(request.getCoordinates().getLongitude())
         );
 
         KafkaMessage kafkaMessage = producer.buildKafkaMessage(authenticatedUser, httpRequest, kafkaRequest);
@@ -131,6 +138,10 @@ public class MapService {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Favorite location not found. It may have been already deleted or the ID is invalid.");
         }
 
+        if (!authenticatedUser.getFavoriteLocationIds().contains(id)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Favorite location not found in your favorite location list.");
+        }
+
         Map<String, String> kafkaRequest = Map.of(
                 "locationId", id
         );
@@ -143,6 +154,11 @@ public class MapService {
     }
 
     public ResponseEntity<String> updateUserFavoriteLocation(String id, UpdateUserFavoriteLocationRequest request, User authenticatedUser, HttpServletRequest httpRequest) {
+        boolean isValidLocationType = mapUtils.isValidLocationType(request.getLocationType());
+        if (!isValidLocationType) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid location type. Accepted values are: HOME, WORK, FAVORITE, RECENT, and CUSTOM.");
+        }
+
         Optional<Location> optionalLocation = locationDaoUtils.findById(id);
         if (optionalLocation.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Favorite location not found. It may have been deleted or the ID is invalid.");
@@ -162,7 +178,8 @@ public class MapService {
                 "street", request.getStreet(),
                 "formattedAddress", request.getFormattedAddress(),
                 "postalCode", request.getPostalCode(),
-                "coordinates", String.valueOf(request.getCoordinates())
+                "latitude", String.valueOf(request.getCoordinates().getLatitude()),
+                "longitude", String.valueOf(request.getCoordinates().getLongitude())
         );
 
         KafkaMessage kafkaMessage = producer.buildKafkaMessage(authenticatedUser, httpRequest, kafkaRequest);
@@ -181,6 +198,10 @@ public class MapService {
         if (Objects.equals(optionalAlert.get().getReportedByUserId(), authenticatedUser.getId())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You cannot validate your own alert. " +
                     "Validation requires confirmation from other users.");
+        }
+
+        if (optionalAlert.get().getExpiresAt().before(new Date())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("This alert has expired and can no longer be validated. Alerts are only active for 30 minutes after creation.");
         }
 
         Map<String, String> kafkaRequest = Map.of(
@@ -202,6 +223,10 @@ public class MapService {
 
         if (Objects.equals(optionalAlert.get().getReportedByUserId(), authenticatedUser.getId())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You cannot invalidate your own alert. Feedback on alert accuracy must come from other users.");
+        }
+
+        if (optionalAlert.get().getExpiresAt().before(new Date())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("This alert has expired and can no longer be invalidated. Alerts are only active for 30 minutes after creation.");
         }
 
         Map<String, String> kafkaRequest = Map.of(
@@ -226,8 +251,10 @@ public class MapService {
         Map<String, String> kafkaRequest = Map.of(
                 "endAddress", request.getEndAddress(),
                 "startAddress", request.getStartAddress(),
-                "endPoint", String.valueOf(request.getEndPoint()),
-                "startPoint", String.valueOf(request.getStartPoint()),
+                "endPointLatitude", String.valueOf(request.getEndPoint().getLatitude()),
+                "endPointLongitude", String.valueOf(request.getEndPoint().getLongitude()),
+                "startPointLatitude", String.valueOf(request.getStartPoint().getLatitude()),
+                "startPointLongitude", String.valueOf(request.getStartPoint().getLongitude()),
                 "kilometersDistance", String.valueOf(request.getKilometersDistance()),
                 "estimatedDurationInSeconds", String.valueOf(request.getEstimatedDurationInSeconds())
         );
@@ -276,39 +303,39 @@ public class MapService {
     }
 
     public ResponseEntity<String> shareLocation(ShareLocationRequest request, User authenticatedUser, HttpServletRequest httpRequest) {
-        Map<String, String> kafkaRequest = Map.of(
-                "latitude", String.valueOf(request.getLatitude()),
-                "longitude", String.valueOf(request.getLongitude())
-        );
-
         String qrCodeData = envConfiguration.getFrontendBaseUrl() + "location?lat=" + request.getLatitude() + "&lng=" + request.getLongitude();
+
+        String qrCodeUrl = qRcodeService.buildQRCodeUrl(qrCodeData, 300);
+
+        Map<String, String> kafkaRequest = Map.of(
+                "qrCodeUrl", qrCodeUrl
+        );
 
         KafkaMessage kafkaMessage = producer.buildKafkaMessage(authenticatedUser, httpRequest, kafkaRequest);
 
         producer.send(kafkaMessage, "map-service", "shareLocation");
 
-        return ResponseEntity.status(HttpStatus.OK).body(qRcodeService.buildQRCodeUrl(qrCodeData, 300));
+        return ResponseEntity.status(HttpStatus.OK).body(qrCodeUrl);
     }
 
     public ResponseEntity<String> shareRoute(ShareRouteRequest request, User authenticatedUser, HttpServletRequest httpRequest) {
-        Map<String, String> kafkaRequest = Map.of(
-                "startLatitude", String.valueOf(request.getStartLatitude()),
-                "startLongitude", String.valueOf(request.getStartLongitude()),
-                "endLatitude", String.valueOf(request.getEndLatitude()),
-                "endLongitude", String.valueOf(request.getEndLongitude())
-        );
-
         String qrCodeData = envConfiguration.getFrontendBaseUrl() + "route?" +
                 "startLat=" + request.getStartLatitude() +
                 "&startLng=" + request.getStartLongitude() +
                 "&endLat=" + request.getEndLatitude() +
                 "&endLng=" + request.getEndLongitude();
 
+        String qrCodeUrl = qRcodeService.buildQRCodeUrl(qrCodeData, 300);
+
+        Map<String, String> kafkaRequest = Map.of(
+                "qrCodeUrl", qrCodeUrl
+        );
+
         KafkaMessage kafkaMessage = producer.buildKafkaMessage(authenticatedUser, httpRequest, kafkaRequest);
 
         producer.send(kafkaMessage, "map-service", "shareRoute");
 
-        return ResponseEntity.status(HttpStatus.OK).body(qRcodeService.buildQRCodeUrl(qrCodeData, 300));
+        return ResponseEntity.status(HttpStatus.OK).body(qrCodeUrl);
     }
 
     public ResponseEntity<String> saveNewRouteRecalculation(User authenticatedUser, HttpServletRequest httpRequest) {

@@ -120,6 +120,7 @@ public class UserControllerDocs {
                                             "emailEnabled": true
                                           },
                                           "isValidEmail": true,
+                                          "hasVoted": false,
                                           "error": null
                                         }
                                         """

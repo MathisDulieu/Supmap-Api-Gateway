@@ -3,6 +3,7 @@ package com.novus.api_gateway.service;
 import com.novus.api_gateway.Producer;
 import com.novus.api_gateway.dao.AdminDashboardDaoUtils;
 import com.novus.api_gateway.dao.UserDaoUtils;
+import com.novus.api_gateway.utils.ImageUtils;
 import com.novus.api_gateway.utils.UserUtils;
 import com.novus.shared_models.common.AdminDashboard.AdminDashboard;
 import com.novus.shared_models.common.Kafka.KafkaMessage;
@@ -25,12 +26,14 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 import static java.util.Objects.isNull;
+import static org.apache.logging.log4j.util.Strings.isEmpty;
 
 @Slf4j
 @Service
@@ -42,6 +45,7 @@ public class UserService {
     private final UserUtils userUtils;
     private final UserDaoUtils userDaoUtils;
     private final AdminDashboardDaoUtils adminDashboardDaoUtils;
+    private final ImageUtils imageUtils;
 
     @Scheduled(fixedRate = 120000)
     public void RefreshUserActivity() {
@@ -73,14 +77,22 @@ public class UserService {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No image file provided. Please select an image to upload.");
         }
 
-        String fileAsBase64 = userUtils.getFileAsBase64(file);
-        if (isNull(fileAsBase64)) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to process the image. Please" +
-                    " try again with a different image or contact support if the issue persists.");
+        String imageUrl;
+
+        try {
+            imageUrl = imageUtils.uploadImage(file);
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to process the image. Please " +
+                    "try again with a different image or contact support if the issue persists.");
+        }
+
+        if (isEmpty(imageUrl)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed to generate image URL. The image could" +
+                    " not be processed properly. Please try again with a different image or contact support.");
         }
 
         Map<String, String> kafkaRequest = Map.of(
-                "file", fileAsBase64
+                "imageUrl", imageUrl
         );
 
         KafkaMessage kafkaMessage = producer.buildKafkaMessage(authenticatedUser, httpRequest, kafkaRequest);

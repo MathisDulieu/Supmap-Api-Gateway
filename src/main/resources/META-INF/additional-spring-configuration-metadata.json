@@ -44,6 +44,26 @@
       "name": "supmap.properties.frontend-base-url",
       "type": "java.lang.String",
       "description": "Base URL of the frontend application, used for generating links in emails and callbacks."
+    },
+    {
+      "name": "supmap.properties.cloudinary-api-key",
+      "type": "java.lang.String",
+      "description": "Description for supmap.properties.cloudinary-api-key."
+    },
+    {
+      "name": "supmap.properties.cloudinary-cloud-name",
+      "type": "java.lang.String",
+      "description": "Description for supmap.properties.cloudinary-cloud-name."
+    },
+    {
+      "name": "supmap.properties.cloudinary-api-secret",
+      "type": "java.lang.String",
+      "description": "Description for supmap.properties.cloudinary-api-secret."
+    },
+    {
+      "name": "supmap.properties.qr-code-api-url",
+      "type": "java.lang.String",
+      "description": "Description for supmap.properties.qr-code-api-url."
     }
   ]
 }

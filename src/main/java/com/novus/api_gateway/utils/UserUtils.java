@@ -12,10 +12,7 @@ import com.novus.shared_models.response.User.UserStatsResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
@@ -68,15 +65,6 @@ public class UserUtils {
 
     public boolean isNotStrongPassword(String password) {
         return !password.matches(PASSWORD_REGEX);
-    }
-
-    public String getFileAsBase64(MultipartFile file) {
-        try {
-            byte[] fileContent = file.getBytes();
-            return Base64.getEncoder().encodeToString(fileContent);
-        } catch(IOException exception) {
-            return null;
-        }
     }
 
     public String getErrorsAsString(List<String> errors) {
@@ -157,6 +145,7 @@ public class UserUtils {
                 .notificationSettings(authenticatedUser.getNotificationSettings())
                 .stats(getStats(authenticatedUser.getStats()))
                 .role(String.valueOf(authenticatedUser.getRole()))
+                .hasVoted(authenticatedUser.isHasVoted())
                 .build();
     }
 
