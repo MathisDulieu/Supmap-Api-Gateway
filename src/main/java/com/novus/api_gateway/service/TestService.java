@@ -13,14 +13,6 @@ public class TestService {
 
     private final UserDaoUtils userDaoUtils;
 
-    public ResponseEntity<String> setUserAsAdmin(User authenticatedUser) {
-        authenticatedUser.setRole(UserRole.ADMIN);
-
-        userDaoUtils.save(authenticatedUser);
-
-        return ResponseEntity.ok("Ok");
-    }
-
     public ResponseEntity<String> setUserAsSuperAdmin(User authenticatedUser) {
         authenticatedUser.setRole(UserRole.SUPER_ADMIN);
 

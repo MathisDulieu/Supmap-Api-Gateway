@@ -1,5 +1,6 @@
 package com.novus.api_gateway.service;
 
+import com.novus.api_gateway.configuration.DateConfiguration;
 import com.novus.api_gateway.configuration.EnvConfiguration;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -22,6 +23,7 @@ import static java.util.Objects.isNull;
 public class JwtTokenService {
 
     private final EnvConfiguration envConfiguration;
+    private final DateConfiguration dateConfiguration;
     private static final long TOKEN_EXPIRATION_TIME = 172_800_000;
 
     private Key getSigningKey() {
@@ -31,7 +33,7 @@ public class JwtTokenService {
     }
 
     public String generateToken(String userId) {
-        Date now = new Date();
+        Date now = dateConfiguration.newDate();
         Date expiryDate = new Date(now.getTime() + TOKEN_EXPIRATION_TIME);
 
         return Jwts.builder()
@@ -91,7 +93,7 @@ public class JwtTokenService {
 
     private boolean isTokenNotExpired(Claims claims) {
         Date expirationDate = claims.getExpiration();
-        return expirationDate != null && expirationDate.after(new Date());
+        return expirationDate != null && expirationDate.after(dateConfiguration.newDate());
     }
 
     public String resolveUserIdFromRequest(HttpServletRequest request) {

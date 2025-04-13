@@ -48,4 +48,16 @@ public class UserDaoUtils {
     public void updateUserActivityStatus() {
         userDao.updateUserActivityStatus();
     }
+
+    public int countDailyActiveUsers() {
+        return userDao.countDailyActiveUsers(User.class);
+    }
+
+    public int countMonthlyActiveUsers() {
+        return userDao.countMonthlyActiveUsers(User.class);
+    }
+
+    public double calculateRetentionRate() {
+        return userDao.calculateRetentionRate(User.class);
+    }
 }

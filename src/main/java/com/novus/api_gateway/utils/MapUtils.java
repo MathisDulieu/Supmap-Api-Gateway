@@ -2,6 +2,7 @@ package com.novus.api_gateway.utils;
 
 import com.novus.api_gateway.dao.UserDaoUtils;
 import com.novus.shared_models.common.Location.LocationType;
+import com.novus.shared_models.common.User.TransportMode;
 import com.novus.shared_models.common.User.User;
 import com.novus.shared_models.request.Map.SaveUserRouteRequest;
 import com.novus.shared_models.response.Map.GetNearbyUsersUserResponse;
@@ -67,4 +68,12 @@ public class MapUtils {
         }
     }
 
+    public boolean isValidTransportMode(String preferredTransportMode) {
+        try {
+            TransportMode.valueOf(preferredTransportMode);
+            return true;
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
+    }
 }

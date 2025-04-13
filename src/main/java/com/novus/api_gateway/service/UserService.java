@@ -9,13 +9,12 @@ import com.novus.shared_models.common.AdminDashboard.AdminDashboard;
 import com.novus.shared_models.common.Kafka.KafkaMessage;
 import com.novus.shared_models.common.User.User;
 import com.novus.shared_models.common.User.UserRole;
+import com.novus.shared_models.common.User.UserStats;
 import com.novus.shared_models.request.User.CreateAdminAccountRequest;
 import com.novus.shared_models.request.User.RateApplicationRequest;
 import com.novus.shared_models.request.User.UpdateAuthenticatedUserDetailsRequest;
 import com.novus.shared_models.request.User.UpdateUserLocationRequest;
-import com.novus.shared_models.response.User.GetAllUsersResponse;
-import com.novus.shared_models.response.User.GetAuthenticatedUserDetailsResponse;
-import com.novus.shared_models.response.User.GetUserAdminDashboardDataResponse;
+import com.novus.shared_models.response.User.*;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -104,6 +103,7 @@ public class UserService {
 
     public ResponseEntity<String> updateAuthenticatedUserDetails(UpdateAuthenticatedUserDetailsRequest request, User authenticatedUser, HttpServletRequest httpRequest) {
         List<String> errors = new ArrayList<>();
+        boolean hasUpdatedEmail = !isNull(request.getEmail());
 
         userUtils.validateUpdateAuthenticatedUserDetailsRequest(errors, request);
         if (errors.isEmpty()) {
@@ -116,7 +116,11 @@ public class UserService {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(userUtils.getErrorsAsString(errors));
         }
 
-        KafkaMessage kafkaMessage = producer.buildKafkaMessage(authenticatedUser, httpRequest, null);
+        Map<String, String> kafkaRequest = Map.of(
+                "hasUpdatedEmail", String.valueOf(hasUpdatedEmail)
+        );
+
+        KafkaMessage kafkaMessage = producer.buildKafkaMessage(authenticatedUser, httpRequest, kafkaRequest);
 
         producer.send(kafkaMessage, "user-service", "setUserProfileImage");
 
@@ -201,9 +205,18 @@ public class UserService {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         }
 
-        response.setUserActivityMetrics(optionalAdminDashboard.get().getUserActivityMetrics());
+        int dailyActiveUsers = userDaoUtils.countDailyActiveUsers();
+        int monthlyActiveUsers = userDaoUtils.countMonthlyActiveUsers();
+        double retentionRate = userDaoUtils.calculateRetentionRate();
+        UserActivityMetricsResponse userActivityMetricsResponse = buildUserActivityMetricsResponse(dailyActiveUsers, monthlyActiveUsers, retentionRate);
+        response.setUserActivityMetrics(userActivityMetricsResponse);
+
         response.setUserGrowthStats(optionalAdminDashboard.get().getUserGrowthStats());
-        response.setTopContributors(optionalAdminDashboard.get().getTopContributors());
+
+        List<User> topContributorsUsers = adminDashboardDaoUtils.findTopContributors();
+        List<UserContributionResponse> userContributionResponses = getUserContributionResponse(topContributorsUsers);
+        response.setTopContributors(userContributionResponses);
+
         response.setAppRatingByNumberOfRate(optionalAdminDashboard.get().getAppRatingByNumberOfRate());
 
         KafkaMessage kafkaMessage = producer.buildKafkaMessage(authenticatedUser, httpRequest, null);
@@ -211,6 +224,29 @@ public class UserService {
         producer.send(kafkaMessage, "user-service", "getUserAdminDashboardData");
 
         return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    private UserActivityMetricsResponse buildUserActivityMetricsResponse(int dailyActiveUsers, int monthlyActiveUsers, double retentionRate) {
+        return UserActivityMetricsResponse.builder()
+                .dailyActiveUsers(dailyActiveUsers)
+                .monthlyActiveUsers(monthlyActiveUsers)
+                .retentionRate(retentionRate)
+                .build();
+    }
+
+    private List<UserContributionResponse> getUserContributionResponse(List<User> topContributorsUsers) {
+        return topContributorsUsers.stream().map(user -> UserContributionResponse.builder()
+                .userId(user.getId())
+                .contributionCount(getUserContributionCount(user.getStats()))
+                .rank(String.valueOf(user.getStats().getRank()))
+                .rankImage(user.getStats().getRankImage())
+                .trustScore(user.getStats().getTrustScore())
+                .username(user.getUsername())
+                .build()).toList();
+    }
+
+    private Integer getUserContributionCount(UserStats stats) {
+        return stats.getValidatedReports() + stats.getInvalidatedReports() + stats.getTotalReportsSubmitted();
     }
 
     public ResponseEntity<String> rateApplication(RateApplicationRequest request, User authenticatedUser, HttpServletRequest httpRequest) {
@@ -227,7 +263,8 @@ public class UserService {
 
     public ResponseEntity<String> updateUserLocation(UpdateUserLocationRequest request, User authenticatedUser, HttpServletRequest httpRequest) {
         Map<String, String> kafkaRequest = Map.of(
-                "location", String.valueOf(request.getLocation())
+                "latitude", String.valueOf(request.getLocation().getLatitude()),
+                "longitude", String.valueOf(request.getLocation().getLongitude())
         );
 
         KafkaMessage kafkaMessage = producer.buildKafkaMessage(authenticatedUser, httpRequest, kafkaRequest);

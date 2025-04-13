@@ -48,22 +48,22 @@
     {
       "name": "supmap.properties.cloudinary-api-key",
       "type": "java.lang.String",
-      "description": "Description for supmap.properties.cloudinary-api-key."
+      "description": "API key for authenticating with the Cloudinary service used for image and media storage."
     },
     {
       "name": "supmap.properties.cloudinary-cloud-name",
       "type": "java.lang.String",
-      "description": "Description for supmap.properties.cloudinary-cloud-name."
+      "description": "Cloud name identifier for the Cloudinary account used for storing and managing media assets."
     },
     {
       "name": "supmap.properties.cloudinary-api-secret",
       "type": "java.lang.String",
-      "description": "Description for supmap.properties.cloudinary-api-secret."
+      "description": "API secret for secure authentication with the Cloudinary service for media management."
     },
     {
       "name": "supmap.properties.qr-code-api-url",
       "type": "java.lang.String",
-      "description": "Description for supmap.properties.qr-code-api-url."
+      "description": "URL endpoint of the QR code generation API service used for creating shareable route and location QR codes."
     }
   ]
 }

@@ -1,6 +1,7 @@
 package com.novus.api_gateway.service;
 
 import com.novus.api_gateway.Producer;
+import com.novus.api_gateway.configuration.DateConfiguration;
 import com.novus.api_gateway.configuration.EnvConfiguration;
 import com.novus.api_gateway.dao.AdminDashboardDaoUtils;
 import com.novus.api_gateway.dao.AlertDaoUtils;
@@ -11,7 +12,6 @@ import com.novus.shared_models.common.AdminDashboard.AdminDashboard;
 import com.novus.shared_models.common.Alert.Alert;
 import com.novus.shared_models.common.Kafka.KafkaMessage;
 import com.novus.shared_models.common.Location.Location;
-import com.novus.shared_models.common.Location.LocationType;
 import com.novus.shared_models.common.User.User;
 import com.novus.shared_models.request.Map.*;
 import com.novus.shared_models.response.Map.*;
@@ -35,6 +35,7 @@ public class MapService {
     private final RouteDaoUtils routeDaoUtils;
     private final QRcodeService qRcodeService;
     private final EnvConfiguration envConfiguration;
+    private final DateConfiguration dateConfiguration;
 
     public ResponseEntity<GetMapAdminDashboardDataResponse> getMapAdminDashboardData(User authenticatedUser, HttpServletRequest httpRequest) {
         GetMapAdminDashboardDataResponse response = GetMapAdminDashboardDataResponse.builder().build();
@@ -200,7 +201,7 @@ public class MapService {
                     "Validation requires confirmation from other users.");
         }
 
-        if (optionalAlert.get().getExpiresAt().before(new Date())) {
+        if (optionalAlert.get().getExpiresAt().before(dateConfiguration.newDate())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("This alert has expired and can no longer be validated. Alerts are only active for 30 minutes after creation.");
         }
 
@@ -225,7 +226,7 @@ public class MapService {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You cannot invalidate your own alert. Feedback on alert accuracy must come from other users.");
         }
 
-        if (optionalAlert.get().getExpiresAt().before(new Date())) {
+        if (optionalAlert.get().getExpiresAt().before(dateConfiguration.newDate())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("This alert has expired and can no longer be invalidated. Alerts are only active for 30 minutes after creation.");
         }
 
@@ -278,9 +279,18 @@ public class MapService {
     }
 
     public ResponseEntity<String> updateUserNavigationPreferences(UpdateUserNavigationPreferencesRequest request, User authenticatedUser, HttpServletRequest httpRequest) {
+        boolean isValidTransportMode = mapUtils.isValidTransportMode(request.getPreferredTransportMode());
+        if (!isValidTransportMode) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid transport mode. Accepted values are: CAR, MOTORCYCLE, TRUCK, BICYCLE, and WALKING.");
+        }
+
         Map<String, String> kafkaRequest = Map.of(
                 "preferredTransportMode", request.getPreferredTransportMode(),
-                "proximityAlertDistance", String.valueOf(request.getProximityAlertDistance())
+                "proximityAlertDistance", String.valueOf(request.getProximityAlertDistance()),
+                "avoidTolls", String.valueOf(request.isAvoidTolls()),
+                "avoidHighways", String.valueOf(request.isAvoidHighways()),
+                "avoidTraffic", String.valueOf(request.isAvoidTraffic()),
+                "showUsers", String.valueOf(request.isShowUsers())
         );
 
         KafkaMessage kafkaMessage = producer.buildKafkaMessage(authenticatedUser, httpRequest, kafkaRequest);

@@ -1,11 +1,11 @@
 package com.novus.api_gateway.service;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import com.novus.api_gateway.configuration.DateConfiguration;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,11 +14,12 @@ import java.util.Map;
 public class LoggingService {
 
     private final ElasticsearchClient elasticsearchClient;
+    private final DateConfiguration dateConfiguration;
 
     public void logApiRequest(String serviceName, String endpoint, String method, int statusCode, long responseTime) {
         try {
             Map<String, Object> document = new HashMap<>();
-            document.put("timestamp", new Date());
+            document.put("timestamp", dateConfiguration.newDate());
             document.put("service", serviceName);
             document.put("endpoint", endpoint);
             document.put("method", method);
