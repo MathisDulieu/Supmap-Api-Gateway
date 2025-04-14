@@ -40,7 +40,7 @@ public class AuthenticationService {
                 "username", request.getUsername(),
                 "email", request.getEmail(),
                 "password", passwordEncoder.encode(request.getPassword())
-                );
+        );
 
         KafkaMessage kafkaMessage = producer.buildKafkaMessage(null, httpRequest, kafkaRequest);
 
