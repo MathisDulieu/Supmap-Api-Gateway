@@ -250,6 +250,10 @@ public class UserService {
     }
 
     public ResponseEntity<String> rateApplication(RateApplicationRequest request, User authenticatedUser, HttpServletRequest httpRequest) {
+        if (request.getRate() < 0 || request.getRate() > 5) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid rating value. Rating must be between 0 and 5.");
+        }
+
         Map<String, String> kafkaRequest = Map.of(
                 "rate", String.valueOf(request.getRate())
         );
