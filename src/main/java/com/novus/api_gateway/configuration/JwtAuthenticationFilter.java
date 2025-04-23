@@ -55,6 +55,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         Optional<User> optionalUser = userDaoUtils.findById(userId);
+        if (optionalUser.isEmpty()) {
+            return null;
+        }
 
         return optionalUser.map(this::buildAuthentication).orElse(null);
     }
