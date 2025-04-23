@@ -1,5 +1,6 @@
 package com.novus.api_gateway.dao;
 
+import com.novus.api_gateway.configuration.DateConfiguration;
 import com.novus.database_utils.Alert.AlertDao;
 import com.novus.shared_models.GeoPoint;
 import com.novus.shared_models.common.Alert.Alert;
@@ -13,17 +14,19 @@ import java.util.Optional;
 public class AlertDaoUtils {
 
     private final AlertDao<Alert> alertDao;
+    private final DateConfiguration dateConfiguration;
 
     public AlertDaoUtils(MongoTemplate mongoTemplate) {
         this.alertDao = new AlertDao<>(mongoTemplate);
+        this.dateConfiguration = new DateConfiguration();
     }
 
     public List<Alert> findAlertsByPosition(double latitude, double longitude) {
-        return alertDao.findAlertsByPosition(latitude, longitude, Alert.class);
+        return alertDao.findAlertsByPositionAndExpiration(latitude, longitude, dateConfiguration.newDate(),  Alert.class);
     }
 
     public List<Alert> findAlertsByRoute(List<GeoPoint> routePoints) {
-        return alertDao.findAlertsByRoute(routePoints, Alert.class);
+        return alertDao.findAlertsByRoute(routePoints, dateConfiguration.newDate(), Alert.class);
     }
 
     public Optional<Alert> findById(String id) {
