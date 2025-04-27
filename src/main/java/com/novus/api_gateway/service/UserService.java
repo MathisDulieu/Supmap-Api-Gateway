@@ -122,7 +122,7 @@ public class UserService {
 
         KafkaMessage kafkaMessage = producer.buildKafkaMessage(authenticatedUser, httpRequest, kafkaRequest);
 
-        producer.send(kafkaMessage, "user-service", "setUserProfileImage");
+        producer.send(kafkaMessage, "user-service", "updateAuthenticatedUserDetails");
 
         return ResponseEntity.status(HttpStatus.OK).body("Your profile information has been successfully updated. The changes are now visible in your account.");
     }
