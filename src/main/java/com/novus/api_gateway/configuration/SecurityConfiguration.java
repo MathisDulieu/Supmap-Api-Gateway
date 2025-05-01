@@ -35,7 +35,7 @@ public class SecurityConfiguration {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.addAllowedOrigin(envConfiguration.getAllowedOrigins());
-        configuration.addAllowedOrigin("https://supmap-admin-frontend-production.up.railway.app/");
+        configuration.addAllowedOrigin("https://supmap-admin.up.railway.app/");
         configuration.addAllowedMethod("*");
         configuration.addAllowedHeader("*");
         configuration.setAllowCredentials(true);
