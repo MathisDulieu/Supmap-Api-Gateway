@@ -123,7 +123,8 @@ public class MapService {
                 "formattedAddress", request.getFormattedAddress(),
                 "postalCode", request.getPostalCode(),
                 "latitude", String.valueOf(request.getCoordinates().getLatitude()),
-                "longitude", String.valueOf(request.getCoordinates().getLongitude())
+                "longitude", String.valueOf(request.getCoordinates().getLongitude()),
+                "userId", authenticatedUser.getId()
         );
 
         KafkaMessage kafkaMessage = producer.buildKafkaMessage(authenticatedUser, httpRequest, kafkaRequest);
